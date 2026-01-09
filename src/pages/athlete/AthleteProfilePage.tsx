@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Grid, MessageSquare, Gift, ShoppingBag, Radio, Star } from 'lucide-react'
+import { Grid, MessageSquare, ShoppingBag, Radio, Star } from 'lucide-react'
 import { useAthleteStore } from '@/stores/athleteStore'
 import { useSupportStore } from '@/stores/supportStore'
 import PostCard from '@/components/athlete/PostCard'
