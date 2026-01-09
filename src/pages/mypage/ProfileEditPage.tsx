@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Camera, X } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
@@ -8,9 +8,11 @@ import './mypage.css'
 export default function ProfileEditPage() {
     const { user, updateProfile } = useAuthStore()
     const navigate = useNavigate()
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     const [name, setName] = useState(user?.name || '')
     const [bio, setBio] = useState(user?.bio || '')
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatarUrl || null)
     const [birthday, setBirthday] = useState('')
     const [favoriteSports, setFavoriteSports] = useState<string[]>([])
     const [isLoading, setIsLoading] = useState(false)
@@ -18,6 +20,22 @@ export default function ProfileEditPage() {
 
     if (!user) {
         return null
+    }
+
+    const handleAvatarClick = () => {
+        fileInputRef.current?.click()
+    }
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            // Create preview URL
+            const reader = new FileReader()
+            reader.onload = (event) => {
+                setAvatarPreview(event.target?.result as string)
+            }
+            reader.readAsDataURL(file)
+        }
     }
 
     const handleSportToggle = (sport: string) => {
@@ -36,6 +54,7 @@ export default function ProfileEditPage() {
             await updateProfile({
                 name,
                 bio,
+                avatarUrl: avatarPreview || undefined,
             })
             setSuccess(true)
             setTimeout(() => {
@@ -69,15 +88,22 @@ export default function ProfileEditPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="edit-form">
-                {/* Avatar */}
+                {/* Avatar with file upload */}
                 <div className="avatar-edit">
-                    <div className="avatar-preview">
-                        {user.avatarUrl ? (
-                            <img src={user.avatarUrl} alt="" />
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                    />
+                    <div className="avatar-preview" onClick={handleAvatarClick}>
+                        {avatarPreview ? (
+                            <img src={avatarPreview} alt="" />
                         ) : (
                             <span>👤</span>
                         )}
-                        <button type="button" className="avatar-btn">
+                        <button type="button" className="avatar-btn" onClick={handleAvatarClick}>
                             <Camera size={16} />
                         </button>
                     </div>

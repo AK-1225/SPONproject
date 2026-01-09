@@ -52,39 +52,7 @@ export default function PostCard({ post, athlete }: PostCardProps) {
                 </div>
             )}
 
-            {/* Post Actions */}
-            <div className="post-actions">
-                <div className="post-actions-left">
-                    <button
-                        className={`action-btn ${liked ? 'liked' : ''}`}
-                        onClick={handleLike}
-                        aria-label="いいね"
-                    >
-                        <Heart size={22} fill={liked ? '#EF4444' : 'none'} stroke={liked ? '#EF4444' : 'currentColor'} />
-                    </button>
-                    <button className="action-btn" aria-label="コメント">
-                        <MessageCircle size={22} />
-                    </button>
-                </div>
-                <button
-                    className={`action-btn ${bookmarked ? 'bookmarked' : ''}`}
-                    onClick={handleBookmark}
-                    aria-label="ブックマーク"
-                >
-                    <Bookmark size={22} fill={bookmarked ? 'var(--color-primary-500)' : 'none'} stroke={bookmarked ? 'var(--color-primary-500)' : 'currentColor'} />
-                </button>
-            </div>
-
-            {/* Post Stats */}
-            <div className="post-stats">
-                <span className="like-count">❤️ {likeCount}</span>
-                <span className="support-count">🎁 {post.supportCount}人が応援</span>
-                {post.totalSupportAmount > 0 && (
-                    <span className="support-amount">💰 {formatCurrency(post.totalSupportAmount)}</span>
-                )}
-            </div>
-
-            {/* Caption */}
+            {/* Caption - moved above stats for differentiation */}
             {post.caption && (
                 <p className="post-caption">
                     <Link to={`/athlete/${post.athleteId}`} className="author-link">
@@ -97,13 +65,55 @@ export default function PostCard({ post, athlete }: PostCardProps) {
             {/* Tags */}
             {post.tags && post.tags.length > 0 && (
                 <div className="post-tags">
-                    {post.tags.map(tag => (
+                    {post.tags.map((tag: string) => (
                         <span key={tag} className="tag tag-sm">#{tag}</span>
                     ))}
                 </div>
             )}
 
-            {/* Support Buttons */}
+            {/* SPON-style engagement section - unique design */}
+            <div className="post-engagement">
+                {/* Stats row */}
+                <div className="engagement-stats">
+                    <span className="stat-item">
+                        <Heart size={14} fill="#EF4444" stroke="#EF4444" />
+                        <span>{likeCount}</span>
+                    </span>
+                    <span className="stat-item">
+                        <span>🎁</span>
+                        <span>{post.supportCount}人が応援</span>
+                    </span>
+                    {post.totalSupportAmount > 0 && (
+                        <span className="stat-item stat-amount">
+                            {formatCurrency(post.totalSupportAmount)}
+                        </span>
+                    )}
+                </div>
+
+                {/* Action buttons - SPON unique style */}
+                <div className="engagement-actions">
+                    <button
+                        className={`engage-btn ${liked ? 'active' : ''}`}
+                        onClick={handleLike}
+                    >
+                        <Heart size={20} fill={liked ? '#EF4444' : 'none'} stroke={liked ? '#EF4444' : 'currentColor'} />
+                        <span>いいね</span>
+                    </button>
+                    <button className="engage-btn">
+                        <MessageCircle size={20} />
+                        <span>コメント</span>
+                    </button>
+                    <button
+                        className={`engage-btn ${bookmarked ? 'active' : ''}`}
+                        onClick={handleBookmark}
+                    >
+                        <Bookmark size={20} fill={bookmarked ? 'var(--color-primary-500)' : 'none'} stroke={bookmarked ? 'var(--color-primary-500)' : 'currentColor'} />
+                        <span>保存</span>
+                    </button>
+                </div>
+            </div>
+
+            {/* Quick Support Buttons */}
             <SupportButton
                 postId={post.id}
                 athleteId={post.athleteId}

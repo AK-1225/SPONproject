@@ -267,3 +267,58 @@
     color: var(--color-primary-600);
     margin-top: var(--space-2);
 }
+
+/* Collection Page Styles */
+.collection-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--color-gray-100);
+}
+
+.collection-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-normal);
+}
+
+.collection-item:hover img {
+    transform: scale(1.05);
+}
+
+.unbookmark-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: var(--radius-full);
+    color: white;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.collection-item:hover .unbookmark-btn {
+    opacity: 1;
+}
+
+.collection-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 8px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+}
+
+.collection-info .athlete-name {
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    color: white;
+}

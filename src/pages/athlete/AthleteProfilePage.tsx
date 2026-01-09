@@ -165,9 +165,13 @@ export default function AthleteProfilePage() {
                     {athlete.bestShots.length > 0 ? (
                         <div className="best-shots-grid">
                             {athlete.bestShots.map(photo => (
-                                <div key={photo.id} className="best-shot-item">
+                                <Link
+                                    key={photo.id}
+                                    to={`/athlete/${athlete.id}/best-shot/${photo.id}`}
+                                    className="best-shot-item"
+                                >
                                     <img src={photo.url} alt={photo.caption || 'ベストショット'} />
-                                </div>
+                                </Link>
                             ))}
                         </div>
                     ) : (

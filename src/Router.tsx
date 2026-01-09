@@ -8,6 +8,7 @@ import HomePage from '@/pages/home/HomePage'
 import SearchPage from '@/pages/search/SearchPage'
 import AthleteProfilePage from '@/pages/athlete/AthleteProfilePage'
 import BoardPage from '@/pages/athlete/BoardPage'
+import BestShotDetailPage from '@/pages/athlete/BestShotDetailPage'
 import FollowingPage from '@/pages/following/FollowingPage'
 import MyPage from '@/pages/mypage/MyPage'
 import CollectionPage from '@/pages/mypage/CollectionPage'
@@ -52,6 +53,10 @@ const router = createBrowserRouter([
             {
                 path: 'athlete/:id/board',
                 element: <BoardPage />,
+            },
+            {
+                path: 'athlete/:id/best-shot/:photoId',
+                element: <BestShotDetailPage />,
             },
             {
                 path: 'mypage',
