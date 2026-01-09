@@ -2,8 +2,10 @@
 .support-buttons {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: var(--space-2);
-    margin-top: var(--space-3);
+    padding: 0 var(--space-4) var(--space-4);
+    margin-top: var(--space-2);
 }
 
 .support-btn {

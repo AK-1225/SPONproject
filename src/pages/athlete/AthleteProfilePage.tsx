@@ -184,11 +184,35 @@ export default function AthleteProfilePage() {
             )}
 
             {activeTab === 'board' && (
-                <Link to={`/athlete/${athlete.id}/board`} className="support-banner">
-                    <h3>💬 掲示板</h3>
-                    <p>ファン同士で交流しましょう</p>
-                    <button className="support-banner-btn">掲示板を開く</button>
-                </Link>
+                <div className="board-tab-content">
+                    {following ? (
+                        <Link to={`/athlete/${athlete.id}/board`} className="board-link-card">
+                            <div className="board-icon">💬</div>
+                            <div className="board-info">
+                                <h3>{athlete.name}さんの掲示板</h3>
+                                <p>ファン同士で交流しましょう</p>
+                            </div>
+                            <span className="board-arrow">→</span>
+                        </Link>
+                    ) : (
+                        <div className="board-locked">
+                            <div className="lock-icon">🔒</div>
+                            <h3>フォロワー限定</h3>
+                            <p>
+                                フォローすると掲示板を見ることができるようになります。
+                                <br />
+                                フォローして掲示板を見てみましょう！
+                            </p>
+                            <button
+                                className="btn btn-primary"
+                                onClick={handleFollowClick}
+                                style={{ marginTop: '16px' }}
+                            >
+                                {athlete.name}さんをフォローする
+                            </button>
+                        </div>
+                    )}
+                </div>
             )}
 
             {activeTab === 'shop' && (

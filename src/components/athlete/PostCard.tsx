@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Heart, Bookmark, MessageCircle } from 'lucide-react'
 import { useLikesStore } from '@/stores/likesStore'
+import { useCommentStore } from '@/stores/commentStore'
 import type { Post, Athlete } from '@/types'
 import { formatDistanceToNow, formatCurrency } from '@/utils/formatDate'
 import SupportButton from '@/components/support/SupportButton'
+import CommentModal from '@/components/comment/CommentModal'
 import './athlete.css'
 
 interface PostCardProps {
@@ -14,10 +16,13 @@ interface PostCardProps {
 
 export default function PostCard({ post, athlete }: PostCardProps) {
     const { isLiked, isBookmarked, toggleLike, toggleBookmark } = useLikesStore()
+    const { getCommentsForPost } = useCommentStore()
     const [likeCount, setLikeCount] = useState(post.likeCount)
+    const [showComments, setShowComments] = useState(false)
 
     const liked = isLiked(post.id)
     const bookmarked = isBookmarked(post.id)
+    const comments = getCommentsForPost(post.id)
 
     const handleLike = () => {
         toggleLike(post.id)
@@ -99,9 +104,12 @@ export default function PostCard({ post, athlete }: PostCardProps) {
                         <Heart size={20} fill={liked ? '#EF4444' : 'none'} stroke={liked ? '#EF4444' : 'currentColor'} />
                         <span>いいね</span>
                     </button>
-                    <button className="engage-btn">
+                    <button
+                        className="engage-btn"
+                        onClick={() => setShowComments(true)}
+                    >
                         <MessageCircle size={20} />
-                        <span>コメント</span>
+                        <span>コメント{comments.length > 0 ? ` ${comments.length}` : ''}</span>
                     </button>
                     <button
                         className={`engage-btn ${bookmarked ? 'active' : ''}`}
@@ -119,6 +127,15 @@ export default function PostCard({ post, athlete }: PostCardProps) {
                 athleteId={post.athleteId}
                 athleteName={athlete?.name || '選手'}
             />
+
+            {/* Comment Modal */}
+            {showComments && (
+                <CommentModal
+                    post={post}
+                    athlete={athlete}
+                    onClose={() => setShowComments(false)}
+                />
+            )}
         </div>
     )
 }
