@@ -1,0 +1,98 @@
+/* Search Page Styles */
+.search-page {
+    padding-bottom: var(--space-4);
+}
+
+.search-bar {
+    position: relative;
+    margin-bottom: var(--space-4);
+}
+
+.search-bar input {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    padding-left: 44px;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-base);
+    transition: all var(--transition-fast);
+}
+
+.search-bar input:focus {
+    outline: none;
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 3px var(--color-primary-100);
+}
+
+.search-bar .icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-gray-400);
+}
+
+/* Filter Section */
+.filter-section {
+    margin-bottom: var(--space-4);
+}
+
+.filter-section h3 {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-gray-700);
+    margin-bottom: var(--space-2);
+}
+
+.filter-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.filter-tag {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-sm);
+    border-radius: var(--radius-full);
+    background: var(--color-gray-100);
+    color: var(--color-gray-700);
+    transition: all var(--transition-fast);
+}
+
+.filter-tag:hover {
+    background: var(--color-gray-200);
+}
+
+.filter-tag.selected {
+    background: var(--color-primary-500);
+    color: white;
+}
+
+/* Results Section */
+.results-section {
+    margin-top: var(--space-6);
+}
+
+.results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+}
+
+.results-header h2 {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--color-gray-900);
+}
+
+.results-count {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-500);
+}
+
+.athlete-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
