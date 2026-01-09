@@ -1,13 +1,15 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Heart, History, Settings, HelpCircle, ChevronRight, LogOut } from 'lucide-react'
+import { History, Settings, HelpCircle, ChevronRight, LogOut, Edit, Bookmark } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { useSupportStore } from '@/stores/supportStore'
+import { useLikesStore } from '@/stores/likesStore'
 import { formatCurrency } from '@/utils/formatDate'
 import './mypage.css'
 
 export default function MyPage() {
     const { user, isAuthenticated, logout } = useAuthStore()
     const { supportHistory } = useSupportStore()
+    const { bookmarkedPosts } = useLikesStore()
     const navigate = useNavigate()
 
     if (!isAuthenticated || !user) {
@@ -24,6 +26,7 @@ export default function MyPage() {
     }
 
     const totalSupported = supportHistory.reduce((sum, s) => sum + s.amount, 0)
+    const bookmarkCount = Object.values(bookmarkedPosts).filter(Boolean).length
 
     const handleLogout = () => {
         logout()
@@ -32,8 +35,11 @@ export default function MyPage() {
 
     return (
         <div className="mypage">
-            {/* Header */}
+            {/* Header with Edit Button */}
             <div className="mypage-header">
+                <Link to="/mypage/edit" className="edit-btn">
+                    <Edit size={18} />
+                </Link>
                 <div className="mypage-avatar">
                     {user.avatarUrl ? (
                         <img src={user.avatarUrl} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
@@ -72,13 +78,19 @@ export default function MyPage() {
                 <div className="mypage-section-title">メニュー</div>
                 <div className="menu-list">
                     <Link to="/mypage/collection" className="menu-item">
-                        <Heart size={20} className="icon" />
+                        <Bookmark size={20} className="icon" />
                         <span className="label">コレクション</span>
+                        <span className="value">{bookmarkCount}件</span>
                         <ChevronRight size={20} className="arrow" />
                     </Link>
                     <Link to="/mypage/history" className="menu-item">
                         <History size={20} className="icon" />
                         <span className="label">支援履歴</span>
+                        <ChevronRight size={20} className="arrow" />
+                    </Link>
+                    <Link to="/mypage/edit" className="menu-item">
+                        <Edit size={20} className="icon" />
+                        <span className="label">プロフィール編集</span>
                         <ChevronRight size={20} className="arrow" />
                     </Link>
                     <Link to="/mypage/settings" className="menu-item">

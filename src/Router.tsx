@@ -8,9 +8,11 @@ import HomePage from '@/pages/home/HomePage'
 import SearchPage from '@/pages/search/SearchPage'
 import AthleteProfilePage from '@/pages/athlete/AthleteProfilePage'
 import BoardPage from '@/pages/athlete/BoardPage'
+import FollowingPage from '@/pages/following/FollowingPage'
 import MyPage from '@/pages/mypage/MyPage'
 import CollectionPage from '@/pages/mypage/CollectionPage'
 import HistoryPage from '@/pages/mypage/HistoryPage'
+import ProfileEditPage from '@/pages/mypage/ProfileEditPage'
 
 const router = createBrowserRouter([
     // Auth pages (no layout)
@@ -33,7 +35,7 @@ const router = createBrowserRouter([
             },
             {
                 path: 'following',
-                element: <HomePage />,
+                element: <FollowingPage />,
             },
             {
                 path: 'search',
@@ -62,6 +64,10 @@ const router = createBrowserRouter([
             {
                 path: 'mypage/history',
                 element: <HistoryPage />,
+            },
+            {
+                path: 'mypage/edit',
+                element: <ProfileEditPage />,
             },
             {
                 path: 'mypage/settings',

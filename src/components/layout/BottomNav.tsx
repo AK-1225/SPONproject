@@ -1,11 +1,11 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Search, Heart, User } from 'lucide-react'
+import { Home, Search, Users, User } from 'lucide-react'
 import './layout.css'
 
 const navItems = [
     { path: '/', icon: Home, label: 'ホーム' },
     { path: '/search', icon: Search, label: '検索' },
-    { path: '/mypage/collection', icon: Heart, label: 'コレクション' },
+    { path: '/following', icon: Users, label: '応援中' },
     { path: '/mypage', icon: User, label: 'マイページ' },
 ]
 

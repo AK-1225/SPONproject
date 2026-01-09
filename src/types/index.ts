@@ -42,6 +42,7 @@ export interface Fan extends User {
 export interface Photo {
     id: string;
     athleteId: string;
+    postId?: string;
     url: string;
     caption?: string;
     isBestShot: boolean;
@@ -56,6 +57,7 @@ export interface Post {
     athlete?: Athlete;
     photos: Photo[];
     caption: string;
+    tags?: string[];
     visibility: 'public' | 'followers' | 'supporters';
     createdAt: string;
     likeCount: number;

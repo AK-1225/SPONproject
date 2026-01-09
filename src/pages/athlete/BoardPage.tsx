@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Trash2, Send } from 'lucide-react'
+import { useParams, Link, Navigate } from 'react-router-dom'
+import { ArrowLeft, Trash2, Send, Lock } from 'lucide-react'
 import { useAthleteStore } from '@/stores/athleteStore'
 import { useAuthStore } from '@/stores/authStore'
 import { useSupportStore } from '@/stores/supportStore'
@@ -39,12 +39,63 @@ export default function BoardPage() {
     const getAthlete = useAthleteStore(state => state.getAthlete)
     const isFollowing = useAthleteStore(state => state.isFollowing)
     const user = useAuthStore(state => state.user)
+    const isAuthenticated = useAuthStore(state => state.isAuthenticated)
     const getTierForAthlete = useSupportStore(state => state.getTierForAthlete)
 
     const athlete = getAthlete(id!)
     const following = isFollowing(id!)
     const tier = getTierForAthlete(id!, following)
     const canPost = tier === 'supporter'
+    const canView = following || (user?.id === id) // Followers only (or the athlete themselves)
+
+    if (!athlete) {
+        return (
+            <div className="empty-state">
+                <h3>選手が見つかりません</h3>
+            </div>
+        )
+    }
+
+    // Followers-only access check
+    if (!canView && isAuthenticated) {
+        return (
+            <div className="board-page">
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    marginBottom: '16px'
+                }}>
+                    <Link to={`/athlete/${id}`} style={{ color: 'var(--color-gray-600)' }}>
+                        <ArrowLeft size={24} />
+                    </Link>
+                    <h1 style={{ fontSize: '18px', fontWeight: 600 }}>
+                        💬 {athlete.name}さんの掲示板
+                    </h1>
+                </div>
+
+                <div className="empty-state" style={{
+                    background: 'var(--color-gray-50)',
+                    borderRadius: '16px',
+                    padding: '48px 24px'
+                }}>
+                    <Lock size={48} style={{ color: 'var(--color-gray-400)', marginBottom: '16px' }} />
+                    <h3>フォロワー限定コンテンツ</h3>
+                    <p style={{ marginBottom: '16px' }}>
+                        掲示板を見るには{athlete.name}さんをフォローしてください
+                    </p>
+                    <Link to={`/athlete/${id}`} className="btn btn-primary">
+                        プロフィールに戻る
+                    </Link>
+                </div>
+            </div>
+        )
+    }
+
+    // Not logged in
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace />
+    }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
@@ -66,14 +117,6 @@ export default function BoardPage() {
 
     const handleDelete = (postId: string) => {
         setPosts(posts.filter(p => p.id !== postId))
-    }
-
-    if (!athlete) {
-        return (
-            <div className="empty-state">
-                <h3>選手が見つかりません</h3>
-            </div>
-        )
     }
 
     return (
