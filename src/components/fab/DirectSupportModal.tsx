@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { X, Heart, ChevronRight } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { useAthleteStore } from '@/stores/athleteStore'
-import { useSupportStore, purposeLabels } from '@/stores/supportStore'
+import { useSupportStore, supportPurposeLabels } from '@/stores/supportStore'
 import './fab.css'
 
 const supportPurposes = [
@@ -55,6 +55,8 @@ export default function DirectSupportModal({ onClose }: DirectSupportModalProps)
             athleteId: selectedAthlete,
             amount: finalAmount,
             purpose: selectedPurpose as any,
+            paymentMethod: 'credit',
+            message: message || undefined,
         })
 
         setStep('success')
@@ -132,7 +134,7 @@ export default function DirectSupportModal({ onClose }: DirectSupportModalProps)
                     <>
                         <div className="step-header">
                             <h3>金額を選択</h3>
-                            <p>{purposeLabels[selectedPurpose as keyof typeof purposeLabels] || selectedPurpose}として</p>
+                            <p>{supportPurposeLabels[selectedPurpose as keyof typeof supportPurposeLabels] || selectedPurpose}として</p>
                         </div>
                         <div className="amount-grid">
                             {amounts.map(amount => (
@@ -179,7 +181,7 @@ export default function DirectSupportModal({ onClose }: DirectSupportModalProps)
                             </div>
                             <div className="confirm-row">
                                 <span>用途</span>
-                                <span>{purposeLabels[selectedPurpose as keyof typeof purposeLabels] || selectedPurpose}</span>
+                                <span>{supportPurposeLabels[selectedPurpose as keyof typeof supportPurposeLabels] || selectedPurpose}</span>
                             </div>
                             <div className="confirm-row amount">
                                 <span>金額</span>
