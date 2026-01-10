@@ -11,6 +11,12 @@ export interface User {
     avatarUrl?: string;
     bio?: string;
     createdAt: string;
+    // Athlete-specific optional fields
+    bannerUrl?: string;
+    sport?: string;
+    region?: string;
+    team?: string;
+    defaultVisibility?: 'public' | 'followers' | 'supporters';
 }
 
 // Athlete-specific types

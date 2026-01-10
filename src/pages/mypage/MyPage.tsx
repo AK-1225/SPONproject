@@ -88,6 +88,20 @@ export default function MyPage() {
                         <span className="label">支援履歴</span>
                         <ChevronRight size={20} className="arrow" />
                     </Link>
+                    {user.userType === 'athlete' && (
+                        <>
+                            <Link to="/mypage/supporters" className="menu-item">
+                                <span className="icon">👥</span>
+                                <span className="label">ファン・サポーター</span>
+                                <ChevronRight size={20} className="arrow" />
+                            </Link>
+                            <Link to="/withdrawal" className="menu-item">
+                                <span className="icon">💰</span>
+                                <span className="label">引き出し申請</span>
+                                <ChevronRight size={20} className="arrow" />
+                            </Link>
+                        </>
+                    )}
                     <Link to="/mypage/edit" className="menu-item">
                         <Edit size={20} className="icon" />
                         <span className="label">プロフィール編集</span>

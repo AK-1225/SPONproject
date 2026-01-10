@@ -9,11 +9,14 @@ import SearchPage from '@/pages/search/SearchPage'
 import AthleteProfilePage from '@/pages/athlete/AthleteProfilePage'
 import BoardPage from '@/pages/athlete/BoardPage'
 import BestShotDetailPage from '@/pages/athlete/BestShotDetailPage'
+import AthleteSupportPage from '@/pages/athlete/AthleteSupportPage'
 import FollowingPage from '@/pages/following/FollowingPage'
 import MyPage from '@/pages/mypage/MyPage'
 import CollectionPage from '@/pages/mypage/CollectionPage'
 import HistoryPage from '@/pages/mypage/HistoryPage'
 import ProfileEditPage from '@/pages/mypage/ProfileEditPage'
+import WithdrawalPage from '@/pages/mypage/WithdrawalPage'
+import SupportersPage from '@/pages/mypage/SupportersPage'
 
 const router = createBrowserRouter([
     // Auth pages (no layout)
@@ -59,6 +62,10 @@ const router = createBrowserRouter([
                 element: <BestShotDetailPage />,
             },
             {
+                path: 'athlete-support',
+                element: <AthleteSupportPage />,
+            },
+            {
                 path: 'mypage',
                 element: <MyPage />,
             },
@@ -73,6 +80,14 @@ const router = createBrowserRouter([
             {
                 path: 'mypage/edit',
                 element: <ProfileEditPage />,
+            },
+            {
+                path: 'withdrawal',
+                element: <WithdrawalPage />,
+            },
+            {
+                path: 'mypage/supporters',
+                element: <SupportersPage />,
             },
             {
                 path: 'mypage/settings',

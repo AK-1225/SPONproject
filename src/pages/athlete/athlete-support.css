@@ -1,0 +1,300 @@
+/* Athlete Support Page */
+.athlete-support-page {
+    padding-bottom: var(--space-8);
+}
+
+.support-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+}
+
+.support-header h1 {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+}
+
+.support-header .back-btn {
+    color: var(--color-gray-600);
+}
+
+/* Unconfirmed Button */
+.unconfirmed-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: 100%;
+    padding: var(--space-4);
+    background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-600));
+    color: white;
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-4);
+    animation: pulse 2s infinite;
+}
+
+.unconfirmed-btn span {
+    flex: 1;
+    text-align: left;
+    font-weight: 500;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+}
+
+.stat-card {
+    padding: var(--space-4);
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+}
+
+.stat-card.primary {
+    background: linear-gradient(135deg, var(--color-primary-50), var(--color-primary-100));
+}
+
+.stat-icon {
+    color: var(--color-primary-500);
+    margin-bottom: var(--space-2);
+}
+
+.stat-value {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--color-gray-900);
+}
+
+.stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-500);
+}
+
+/* Breakdown Section */
+.breakdown-section {
+    margin-bottom: var(--space-6);
+}
+
+.breakdown-section h2 {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    margin-bottom: var(--space-3);
+}
+
+.breakdown-list {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-gray-100);
+}
+
+.breakdown-item:last-child {
+    border-bottom: none;
+}
+
+.purpose-label {
+    color: var(--color-gray-700);
+}
+
+.purpose-amount {
+    font-weight: 600;
+    color: var(--color-primary-600);
+}
+
+/* History Section */
+.history-section {
+    margin-bottom: var(--space-6);
+}
+
+.history-section h2 {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    margin-bottom: var(--space-3);
+}
+
+.history-list {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-gray-100);
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.history-amount {
+    font-weight: 600;
+}
+
+.history-purpose {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-500);
+}
+
+.history-time {
+    font-size: var(--font-size-xs);
+    color: var(--color-gray-400);
+}
+
+.empty-text {
+    padding: var(--space-6);
+    text-align: center;
+    color: var(--color-gray-500);
+}
+
+/* Withdrawal Link */
+.withdrawal-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4);
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    color: var(--color-gray-700);
+    text-decoration: none;
+}
+
+/* Notification Overlay */
+.notification-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-modal);
+    animation: fadeIn var(--transition-fast) ease-out;
+}
+
+.notification-card {
+    width: 90%;
+    max-width: 360px;
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    position: relative;
+    animation: slideUp var(--transition-normal) ease-out;
+    transition: transform 0.15s ease-out;
+}
+
+.notification-card .close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    color: var(--color-gray-400);
+}
+
+.notification-count {
+    text-align: center;
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-500);
+    margin-bottom: var(--space-4);
+}
+
+.notification-content {
+    text-align: center;
+}
+
+.fan-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    margin-bottom: var(--space-3);
+}
+
+.notification-content h3 {
+    font-size: var(--font-size-base);
+    color: var(--color-gray-700);
+    margin-bottom: var(--space-2);
+}
+
+.notification-amount {
+    font-size: var(--font-size-3xl);
+    font-weight: 700;
+    color: var(--color-primary-600);
+    margin-bottom: var(--space-1);
+}
+
+.notification-purpose {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-500);
+    margin-bottom: var(--space-3);
+}
+
+.notification-message {
+    font-style: italic;
+    color: var(--color-gray-600);
+    background: var(--color-gray-50);
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-4);
+}
+
+.thank-you-section {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+}
+
+.thank-you-section input {
+    flex: 1;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+}
+
+.thank-you-section .send-btn {
+    padding: var(--space-2);
+    background: var(--color-primary-500);
+    color: white;
+    border-radius: var(--radius-md);
+}
+
+.notification-actions {
+    text-align: center;
+}
+
+.confirm-btn {
+    width: 100%;
+    padding: var(--space-3);
+    background: var(--color-primary-500);
+    color: white;
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    margin-bottom: var(--space-2);
+}
+
+.swipe-hint {
+    font-size: var(--font-size-xs);
+    color: var(--color-gray-400);
+}
