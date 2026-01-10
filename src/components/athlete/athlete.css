@@ -361,6 +361,16 @@
     border-radius: var(--radius-full);
 }
 
+.tag-link {
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.tag-link:hover {
+    background: var(--color-primary-100);
+    color: var(--color-primary-700);
+}
+
 /* SPON-unique Engagement Section */
 .post-engagement {
     padding: var(--space-3) var(--space-4) var(--space-4);

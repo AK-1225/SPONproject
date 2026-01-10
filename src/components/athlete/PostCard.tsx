@@ -67,11 +67,17 @@ export default function PostCard({ post, athlete }: PostCardProps) {
                 </p>
             )}
 
-            {/* Tags */}
+            {/* Tags - clickable to search */}
             {post.tags && post.tags.length > 0 && (
                 <div className="post-tags">
                     {post.tags.map((tag: string) => (
-                        <span key={tag} className="tag tag-sm">#{tag}</span>
+                        <Link
+                            key={tag}
+                            to={`/search?tag=${encodeURIComponent(tag)}`}
+                            className="tag tag-sm tag-link"
+                        >
+                            #{tag}
+                        </Link>
                     ))}
                 </div>
             )}

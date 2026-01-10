@@ -1,9 +1,14 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { Plus, Heart } from 'lucide-react'
+import { useAuthStore } from '@/stores/authStore'
 import { useAthleteStore } from '@/stores/athleteStore'
 import { tagCategories } from '@/data/mockData'
 import PostCard from '@/components/athlete/PostCard'
+import CreatePostModal from '@/components/fab/CreatePostModal'
+import DirectSupportModal from '@/components/fab/DirectSupportModal'
 import '@/components/athlete/athlete.css'
+import '@/components/fab/fab.css'
 import './home.css'
 
 type TabType = 'all' | 'following'
@@ -13,8 +18,13 @@ export default function HomePage() {
     const [activeTab, setActiveTab] = useState<TabType>('all')
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
     const [displayCount, setDisplayCount] = useState(POSTS_PER_PAGE)
+    const [showPostModal, setShowPostModal] = useState(false)
+    const [showSupportModal, setShowSupportModal] = useState(false)
 
+    const { user, isAuthenticated } = useAuthStore()
     const { athletes, posts, stories, following } = useAthleteStore()
+
+    const isAthlete = user?.userType === 'athlete'
 
     // Filter stories to show followed athletes with stories
     const followedAthletesWithStories = useMemo(() => {
@@ -32,13 +42,12 @@ export default function HomePage() {
             filtered = filtered.filter(p => following.includes(p.athleteId))
         }
 
-        // Category filter
+        // Category filter (by sport)
         if (selectedCategory) {
-            filtered = filtered.filter(p =>
-                p.tags?.includes(selectedCategory) ||
-                athletes.find(a => a.id === p.athleteId)?.sport === selectedCategory ||
-                athletes.find(a => a.id === p.athleteId)?.tags.includes(selectedCategory)
-            )
+            filtered = filtered.filter(p => {
+                const athlete = athletes.find(a => a.id === p.athleteId)
+                return athlete?.sport === selectedCategory
+            })
         }
 
         return filtered
@@ -171,6 +180,37 @@ export default function HomePage() {
                     </div>
                 )}
             </div>
+
+            {/* FAB Button - Different for Athletes vs Fans */}
+            {isAuthenticated && (
+                <>
+                    {isAthlete ? (
+                        <button
+                            className="fab-button"
+                            onClick={() => setShowPostModal(true)}
+                            title="新しい投稿"
+                        >
+                            <Plus size={28} />
+                        </button>
+                    ) : (
+                        <button
+                            className="fab-button support"
+                            onClick={() => setShowSupportModal(true)}
+                            title="選手を応援"
+                        >
+                            <Heart size={24} />
+                        </button>
+                    )}
+                </>
+            )}
+
+            {/* Modals */}
+            {showPostModal && (
+                <CreatePostModal onClose={() => setShowPostModal(false)} />
+            )}
+            {showSupportModal && (
+                <DirectSupportModal onClose={() => setShowSupportModal(false)} />
+            )}
         </div>
     )
 }
