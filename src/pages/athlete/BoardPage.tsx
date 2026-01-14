@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useParams, Link, Navigate } from 'react-router-dom'
-import { ArrowLeft, Trash2, Send, Lock } from 'lucide-react'
+import { ArrowLeft, Trash2, Send, Lock, Ban, MoreVertical, X } from 'lucide-react'
 import { useAthleteStore } from '@/stores/athleteStore'
 import { useAuthStore } from '@/stores/authStore'
 import { useSupportStore } from '@/stores/supportStore'
+import { useBlockStore } from '@/stores/blockStore'
 import { formatDistanceToNow } from '@/utils/formatDate'
 import type { BoardPost } from '@/types'
 import './athlete.css'
@@ -35,18 +36,22 @@ export default function BoardPage() {
     const { id } = useParams<{ id: string }>()
     const [posts, setPosts] = useState<BoardPost[]>(mockBoardPosts)
     const [newPost, setNewPost] = useState('')
+    const [showMenu, setShowMenu] = useState<string | null>(null)
+    const [showBlockConfirm, setShowBlockConfirm] = useState<{ userId: string, userName: string } | null>(null)
 
     const getAthlete = useAthleteStore(state => state.getAthlete)
     const isFollowing = useAthleteStore(state => state.isFollowing)
     const user = useAuthStore(state => state.user)
     const isAuthenticated = useAuthStore(state => state.isAuthenticated)
     const getTierForAthlete = useSupportStore(state => state.getTierForAthlete)
+    const { blockUser, isBlocked: checkIsBlocked } = useBlockStore()
 
     const athlete = getAthlete(id!)
     const following = isFollowing(id!)
     const tier = getTierForAthlete(id!, following)
     const canPost = tier === 'supporter'
-    const canView = following || (user?.id === id) // Followers only (or the athlete themselves)
+    const canView = following || (user?.id === id)
+    const isOwner = user?.id === id || user?.email === athlete?.email
 
     if (!athlete) {
         return (
@@ -117,7 +122,22 @@ export default function BoardPage() {
 
     const handleDelete = (postId: string) => {
         setPosts(posts.filter(p => p.id !== postId))
+        setShowMenu(null)
     }
+
+    const handleBlock = () => {
+        if (!showBlockConfirm || !id) return
+        blockUser(id, showBlockConfirm.userId)
+        // Remove all posts by blocked user
+        setPosts(posts.filter(p => p.authorId !== showBlockConfirm.userId))
+        setShowBlockConfirm(null)
+        setShowMenu(null)
+    }
+
+    // Filter out posts from blocked users
+    const visiblePosts = posts.filter(p =>
+        p.athleteId === id && !checkIsBlocked(id, p.authorId)
+    )
 
     return (
         <div className="board-page">
@@ -138,7 +158,7 @@ export default function BoardPage() {
 
             {/* Posts */}
             <div style={{ marginBottom: '80px' }}>
-                {posts.filter(p => p.athleteId === id).map(post => (
+                {visiblePosts.map(post => (
                     <div
                         key={post.id}
                         style={{
@@ -202,20 +222,75 @@ export default function BoardPage() {
                                     </div>
                                 </div>
                             </div>
-                            {(user?.id === post.authorId || user?.id === athlete.id) && (
-                                <button
-                                    onClick={() => handleDelete(post.id)}
-                                    style={{ color: 'var(--color-gray-400)' }}
-                                >
-                                    <Trash2 size={16} />
-                                </button>
+
+                            {/* Action menu for owner or post author */}
+                            {(user?.id === post.authorId || isOwner) && (
+                                <div style={{ position: 'relative' }}>
+                                    <button
+                                        onClick={() => setShowMenu(showMenu === post.id ? null : post.id)}
+                                        style={{ color: 'var(--color-gray-400)', padding: '4px' }}
+                                    >
+                                        <MoreVertical size={16} />
+                                    </button>
+
+                                    {showMenu === post.id && (
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: '100%',
+                                            right: 0,
+                                            background: 'white',
+                                            borderRadius: '8px',
+                                            boxShadow: 'var(--shadow-lg)',
+                                            overflow: 'hidden',
+                                            zIndex: 10,
+                                            minWidth: '140px'
+                                        }}>
+                                            <button
+                                                onClick={() => handleDelete(post.id)}
+                                                style={{
+                                                    width: '100%',
+                                                    padding: '10px 12px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '8px',
+                                                    fontSize: '14px',
+                                                    color: 'var(--color-error)'
+                                                }}
+                                            >
+                                                <Trash2 size={16} />
+                                                削除する
+                                            </button>
+                                            {isOwner && post.authorId !== athlete.id && (
+                                                <button
+                                                    onClick={() => setShowBlockConfirm({
+                                                        userId: post.authorId,
+                                                        userName: post.authorName
+                                                    })}
+                                                    style={{
+                                                        width: '100%',
+                                                        padding: '10px 12px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '8px',
+                                                        fontSize: '14px',
+                                                        color: 'var(--color-gray-700)',
+                                                        borderTop: '1px solid var(--color-gray-100)'
+                                                    }}
+                                                >
+                                                    <Ban size={16} />
+                                                    ブロックする
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                             )}
                         </div>
                         <p style={{ fontSize: '14px', lineHeight: 1.6 }}>{post.content}</p>
                     </div>
                 ))}
 
-                {posts.filter(p => p.athleteId === id).length === 0 && (
+                {visiblePosts.length === 0 && (
                     <div className="empty-state">
                         <div className="icon">💬</div>
                         <h3>まだ投稿がありません</h3>
@@ -277,6 +352,75 @@ export default function BoardPage() {
                     </div>
                 )}
             </div>
+
+            {/* Block Confirmation Modal */}
+            {showBlockConfirm && (
+                <div style={{
+                    position: 'fixed',
+                    inset: 0,
+                    background: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 100
+                }} onClick={() => setShowBlockConfirm(null)}>
+                    <div style={{
+                        background: 'white',
+                        borderRadius: '16px',
+                        padding: '24px',
+                        width: '90%',
+                        maxWidth: '320px'
+                    }} onClick={e => e.stopPropagation()}>
+                        <button
+                            onClick={() => setShowBlockConfirm(null)}
+                            style={{
+                                position: 'absolute',
+                                top: '12px',
+                                right: '12px',
+                                color: 'var(--color-gray-400)'
+                            }}
+                        >
+                            <X size={20} />
+                        </button>
+                        <div style={{ textAlign: 'center' }}>
+                            <Ban size={48} style={{ color: 'var(--color-error)', marginBottom: '16px' }} />
+                            <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>
+                                {showBlockConfirm.userName}さんをブロック
+                            </h3>
+                            <p style={{ fontSize: '14px', color: 'var(--color-gray-500)', marginBottom: '20px' }}>
+                                ブロックすると、この選手の掲示板での投稿が非表示になります。フォロー解除されますが、支援履歴は残ります。
+                            </p>
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button
+                                    onClick={() => setShowBlockConfirm(null)}
+                                    style={{
+                                        flex: 1,
+                                        padding: '12px',
+                                        background: 'var(--color-gray-100)',
+                                        borderRadius: '8px',
+                                        fontWeight: 500
+                                    }}
+                                >
+                                    キャンセル
+                                </button>
+                                <button
+                                    onClick={handleBlock}
+                                    style={{
+                                        flex: 1,
+                                        padding: '12px',
+                                        background: 'var(--color-error)',
+                                        color: 'white',
+                                        borderRadius: '8px',
+                                        fontWeight: 500
+                                    }}
+                                >
+                                    ブロック
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
