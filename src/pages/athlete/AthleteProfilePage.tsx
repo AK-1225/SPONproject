@@ -1,14 +1,41 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Grid, MessageSquare, ShoppingBag, Radio, Star } from 'lucide-react'
+import { Grid, MessageSquare, ShoppingBag, Star, History, GraduationCap, Trophy, Award, CircleDot, Radio } from 'lucide-react'
 import { useAthleteStore } from '@/stores/athleteStore'
 import { useSupportStore } from '@/stores/supportStore'
 import PostCard from '@/components/athlete/PostCard'
 import PaymentModal from '@/components/support/PaymentModal'
 import { formatCurrency } from '@/utils/formatDate'
+import type { CareerEntryType } from '@/types'
 import './athlete.css'
 
-type TabType = 'posts' | 'best' | 'board' | 'shop'
+type TabType = 'posts' | 'best' | 'board' | 'shop' | 'career'
+
+const getCareerIcon = (type: CareerEntryType) => {
+    switch (type) {
+        case 'education':
+            return <GraduationCap size={18} />
+        case 'competition':
+            return <Trophy size={18} />
+        case 'award':
+            return <Award size={18} />
+        default:
+            return <CircleDot size={18} />
+    }
+}
+
+const getCareerLabel = (type: CareerEntryType) => {
+    switch (type) {
+        case 'education':
+            return '学歴'
+        case 'competition':
+            return '大会'
+        case 'award':
+            return '受賞'
+        default:
+            return 'その他'
+    }
+}
 
 export default function AthleteProfilePage() {
     const { id } = useParams<{ id: string }>()
@@ -53,6 +80,9 @@ export default function AthleteProfilePage() {
                     className="profile-avatar"
                 />
                 <h1 className="profile-name">{athlete.name}</h1>
+                {athlete.userHandle && (
+                    <div className="profile-handle">{athlete.userHandle}</div>
+                )}
                 <div className="profile-sport">{athlete.sport}</div>
                 <div className="profile-region">📍 {athlete.region}</div>
 
@@ -138,6 +168,15 @@ export default function AthleteProfilePage() {
                     <ShoppingBag size={20} />
                     <span>ショップ</span>
                 </button>
+                {athlete.careerHistory && athlete.careerHistory.length > 0 && (
+                    <button
+                        className={`profile-nav-btn ${activeTab === 'career' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('career')}
+                    >
+                        <History size={20} />
+                        <span>経歴</span>
+                    </button>
+                )}
             </div>
 
             {/* Tab Content */}
@@ -220,6 +259,31 @@ export default function AthleteProfilePage() {
                     <h3>🛍️ グッズショップ</h3>
                     <p>準備中です。もうしばらくお待ちください。</p>
                     <button className="support-banner-btn" disabled>Coming Soon</button>
+                </div>
+            )}
+
+            {activeTab === 'career' && athlete.careerHistory && (
+                <div className="career-timeline">
+                    {athlete.careerHistory
+                        .sort((a, b) => b.date.localeCompare(a.date))
+                        .map((entry) => (
+                            <div key={entry.id} className="career-entry">
+                                <div className="career-date">
+                                    {entry.date.replace('-', '年') + '月'}
+                                </div>
+                                <div className="career-icon">
+                                    {getCareerIcon(entry.type)}
+                                </div>
+                                <div className="career-content">
+                                    <div className="career-type-label">{getCareerLabel(entry.type)}</div>
+                                    <h4 className="career-title">{entry.title}</h4>
+                                    {entry.description && (
+                                        <p className="career-description">{entry.description}</p>
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    }
                 </div>
             )}
 

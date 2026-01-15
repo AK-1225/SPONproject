@@ -92,7 +92,7 @@ export default function ProfileEditPage() {
             setSuccess(true)
             setTimeout(() => {
                 navigate('/mypage')
-            }, 1500)
+            }, 500)
         } catch (error) {
             console.error(error)
         } finally {
