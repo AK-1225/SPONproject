@@ -27,6 +27,7 @@ interface AthleteState {
     getPostsForAthlete: (athleteId: string) => Post[]
     getStoriesForAthlete: (athleteId: string) => Story[]
     addPost: (input: NewPostInput) => void
+    deletePost: (postId: string) => void
     registerAthlete: (user: { id: string; name: string; email: string; avatarUrl?: string; bio?: string }) => void
     updateAthleteProfile: (athleteId: string, updates: Partial<Athlete>) => void
 }
@@ -69,7 +70,8 @@ export const useAthleteStore = create<AthleteState>()(
             },
 
             getAthlete: (athleteId: string) => {
-                return get().athletes.find(a => a.id === athleteId)
+                // Search by ID first, then by email for new accounts
+                return get().athletes.find(a => a.id === athleteId || a.email === athleteId)
             },
 
             getPostsForAthlete: (athleteId: string) => {
@@ -122,6 +124,13 @@ export const useAthleteStore = create<AthleteState>()(
                 }))
             },
 
+            // Delete a post
+            deletePost: (postId: string) => {
+                set(state => ({
+                    posts: state.posts.filter(p => p.id !== postId)
+                }))
+            },
+
             // Register a new athlete (called when athlete type user registers)
             registerAthlete: (user) => {
                 const existing = get().athletes.find(a => a.id === user.id || a.email === user.email)
@@ -164,6 +173,7 @@ export const useAthleteStore = create<AthleteState>()(
                 following: state.following,
                 collection: state.collection,
                 posts: state.posts,
+                athletes: state.athletes,
             }),
         }
     )

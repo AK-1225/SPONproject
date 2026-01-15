@@ -17,6 +17,7 @@ import HistoryPage from '@/pages/mypage/HistoryPage'
 import ProfileEditPage from '@/pages/mypage/ProfileEditPage'
 import WithdrawalPage from '@/pages/mypage/WithdrawalPage'
 import SupportersPage from '@/pages/mypage/SupportersPage'
+import NotificationsPage from '@/pages/notifications/NotificationsPage'
 
 const router = createBrowserRouter([
     // Auth pages (no layout)
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
             {
                 path: 'following',
                 element: <FollowingPage />,
+            },
+            {
+                path: 'notifications',
+                element: <NotificationsPage />,
             },
             {
                 path: 'search',

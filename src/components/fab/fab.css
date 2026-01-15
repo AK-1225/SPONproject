@@ -485,3 +485,77 @@
 .fab-button.support:hover {
     background: linear-gradient(135deg, #DB2777, #EA580C);
 }
+
+/* Toast Notification */
+.toast-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-modal);
+    pointer-events: none;
+    animation: fadeIn var(--transition-fast) ease-out;
+}
+
+.toast-notification {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    border-radius: var(--radius-full);
+    font-weight: 500;
+    animation: toastPop var(--transition-normal) ease-out;
+}
+
+.toast-icon {
+    font-size: 1.2rem;
+}
+
+@keyframes toastPop {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Post Submit Button */
+.post-submit-btn {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-primary-500);
+    color: white;
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    border-radius: var(--radius-lg);
+    margin-top: var(--space-4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    transition: background var(--transition-fast);
+}
+
+.post-submit-btn:hover:not(:disabled) {
+    background: var(--color-primary-600);
+}
+
+.post-submit-btn:disabled {
+    background: var(--color-gray-300);
+    cursor: not-allowed;
+}
+
+.create-post-modal .post-form {
+    padding-bottom: var(--space-6);
+}

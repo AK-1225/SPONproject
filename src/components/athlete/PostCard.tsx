@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Heart, Bookmark, MessageCircle } from 'lucide-react'
+import { Heart, Bookmark, MessageCircle, Trash2 } from 'lucide-react'
 import { useLikesStore } from '@/stores/likesStore'
 import { useCommentStore } from '@/stores/commentStore'
 import { useAuthStore } from '@/stores/authStore'
+import { useAthleteStore } from '@/stores/athleteStore'
 import type { Post, Athlete } from '@/types'
 import { formatDistanceToNow, formatCurrency } from '@/utils/formatDate'
 import SupportButton from '@/components/support/SupportButton'
@@ -19,8 +20,10 @@ export default function PostCard({ post, athlete }: PostCardProps) {
     const { isLiked, isBookmarked, toggleLike, toggleBookmark } = useLikesStore()
     const { getCommentsForPost } = useCommentStore()
     const { user } = useAuthStore()
+    const { deletePost } = useAthleteStore()
     const [likeCount, setLikeCount] = useState(post.likeCount)
     const [showComments, setShowComments] = useState(false)
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
     const liked = isLiked(post.id)
     const bookmarked = isBookmarked(post.id)
@@ -40,23 +43,56 @@ export default function PostCard({ post, athlete }: PostCardProps) {
         toggleBookmark(post.id)
     }
 
+    const handleDelete = () => {
+        deletePost(post.id)
+        setShowDeleteConfirm(false)
+    }
+
     const photo = post.photos?.[0]
 
     return (
         <div className="post-card">
             {/* Post Header */}
-            <Link to={`/athlete/${post.athleteId}`} className="post-header">
-                <img
-                    src={authorAvatar || '/default-avatar.png'}
-                    alt={authorName || ''}
-                    className="avatar avatar-sm"
-                    loading="lazy"
-                />
-                <div className="post-header-info">
-                    <span className="post-author">{authorName}</span>
-                    <span className="post-time">{formatDistanceToNow(post.createdAt)}</span>
+            <div className="post-header-wrapper">
+                <Link to={`/athlete/${post.athleteId}`} className="post-header">
+                    <img
+                        src={authorAvatar || '/default-avatar.png'}
+                        alt={authorName || ''}
+                        className="avatar avatar-sm"
+                        loading="lazy"
+                    />
+                    <div className="post-header-info">
+                        <span className="post-author">{authorName}</span>
+                        <span className="post-time">{formatDistanceToNow(post.createdAt)}</span>
+                    </div>
+                </Link>
+                {isOwnPost && (
+                    <button
+                        className="post-delete-btn"
+                        onClick={() => setShowDeleteConfirm(true)}
+                        title="投稿を削除"
+                    >
+                        <Trash2 size={14} />
+                    </button>
+                )}
+            </div>
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteConfirm && (
+                <div className="delete-confirm-modal">
+                    <div className="delete-confirm-content">
+                        <p>この投稿を削除しますか？</p>
+                        <div className="delete-confirm-actions">
+                            <button className="btn-cancel" onClick={() => setShowDeleteConfirm(false)}>
+                                キャンセル
+                            </button>
+                            <button className="btn-delete" onClick={handleDelete}>
+                                削除
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </Link>
+            )}
 
             {/* Post Image */}
             {photo && (

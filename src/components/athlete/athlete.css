@@ -88,6 +88,75 @@
     box-shadow: var(--shadow-sm);
     overflow: hidden;
     margin-bottom: var(--space-4);
+    position: relative;
+}
+
+.post-header-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: var(--space-2);
+}
+
+.post-delete-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-full);
+    color: var(--color-gray-400);
+    transition: all var(--transition-fast);
+}
+
+.post-delete-btn:hover {
+    background: var(--color-gray-100);
+    color: #DC2626;
+}
+
+.delete-confirm-modal {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    animation: fadeIn var(--transition-fast) ease-out;
+}
+
+.delete-confirm-content {
+    background: white;
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    max-width: 280px;
+}
+
+.delete-confirm-content p {
+    margin-bottom: var(--space-4);
+    font-weight: 500;
+}
+
+.delete-confirm-actions {
+    display: flex;
+    gap: var(--space-2);
+    justify-content: center;
+}
+
+.delete-confirm-actions .btn-cancel {
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-gray-100);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+}
+
+.delete-confirm-actions .btn-delete {
+    padding: var(--space-2) var(--space-4);
+    background: #DC2626;
+    color: white;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
 }
 
 .post-card-header {

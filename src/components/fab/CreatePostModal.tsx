@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
-import { X, Camera, Image, Send, Video, Loader } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { X, Camera, Image, Video, Loader } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { useAthleteStore } from '@/stores/athleteStore'
 import {
@@ -19,16 +20,17 @@ interface CreatePostModalProps {
 export default function CreatePostModal({ onClose }: CreatePostModalProps) {
     const { user } = useAuthStore()
     const { addPost, athletes } = useAthleteStore()
+    const navigate = useNavigate()
 
     const [caption, setCaption] = useState('')
     const [tags, setTags] = useState('')
     const [isBestShot, setIsBestShot] = useState(false)
     const [mediaPreview, setMediaPreview] = useState<string | null>(null)
     const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null)
-    const [videoFile, setVideoFile] = useState<File | null>(null)
+    const [_videoFile, setVideoFile] = useState<File | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false)
-    const [success, setSuccess] = useState(false)
+    const [showToast, setShowToast] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [videoDuration, setVideoDuration] = useState<number | null>(null)
 
@@ -104,9 +106,11 @@ export default function CreatePostModal({ onClose }: CreatePostModalProps) {
                 isBestShot,
             })
 
-            setSuccess(true)
+            // Show toast and redirect to home
+            setShowToast(true)
             setTimeout(() => {
                 onClose()
+                navigate('/')
             }, 1500)
         } catch (error) {
             setError('投稿に失敗しました')
@@ -127,14 +131,13 @@ export default function CreatePostModal({ onClose }: CreatePostModalProps) {
         }
     }
 
-    if (success) {
+    // Toast notification after successful post
+    if (showToast) {
         return (
-            <div className="fab-modal-overlay">
-                <div className="fab-modal success-modal">
-                    <div className="success-content">
-                        <div className="success-icon">✅</div>
-                        <h3>投稿しました！</h3>
-                    </div>
+            <div className="toast-overlay">
+                <div className="toast-notification">
+                    <span className="toast-icon">✅</span>
+                    <span>投稿完了</span>
                 </div>
             </div>
         )
@@ -142,19 +145,13 @@ export default function CreatePostModal({ onClose }: CreatePostModalProps) {
 
     return (
         <div className="fab-modal-overlay" onClick={onClose}>
-            <div className="fab-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="fab-modal create-post-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
                     <button className="close-btn" onClick={onClose}>
                         <X size={24} />
                     </button>
                     <h2>新しい投稿</h2>
-                    <button
-                        className="submit-btn"
-                        onClick={handleSubmit}
-                        disabled={!caption.trim() || isSubmitting || isProcessing}
-                    >
-                        {isSubmitting ? <Loader size={20} className="spin" /> : <Send size={20} />}
-                    </button>
+                    <div style={{ width: 24 }} /> {/* Spacer for centering */}
                 </div>
 
                 <form className="post-form" onSubmit={handleSubmit}>
@@ -244,6 +241,22 @@ export default function CreatePostModal({ onClose }: CreatePostModalProps) {
                             </span>
                         </label>
                     )}
+
+                    {/* Submit Button - Fixed at bottom */}
+                    <button
+                        type="submit"
+                        className="post-submit-btn"
+                        disabled={!caption.trim() || isSubmitting || isProcessing}
+                    >
+                        {isSubmitting ? (
+                            <>
+                                <Loader size={18} className="spin" />
+                                投稿中...
+                            </>
+                        ) : (
+                            '投稿する'
+                        )}
+                    </button>
                 </form>
             </div>
         </div>

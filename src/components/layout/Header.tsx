@@ -2,12 +2,16 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Search, Bell, User } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
+import { useNotificationStore } from '@/stores/notificationStore'
 import './layout.css'
 
 export default function Header() {
-    const isAuthenticated = useAuthStore(state => state.isAuthenticated)
+    const { isAuthenticated, user } = useAuthStore()
+    const { getUnreadCount } = useNotificationStore()
     const [searchQuery, setSearchQuery] = useState('')
     const navigate = useNavigate()
+
+    const unreadCount = user ? getUnreadCount(user.id) : 0
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault()
@@ -37,9 +41,14 @@ export default function Header() {
             <div className="header-actions">
                 {isAuthenticated ? (
                     <>
-                        <button className="header-btn" aria-label="通知">
+                        <Link to="/notifications" className="header-btn notification-btn" aria-label="通知">
                             <Bell size={22} />
-                        </button>
+                            {unreadCount > 0 && (
+                                <span className="notification-badge">
+                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                </span>
+                            )}
+                        </Link>
                         <Link to="/mypage" className="header-btn" aria-label="マイページ">
                             <User size={22} />
                         </Link>

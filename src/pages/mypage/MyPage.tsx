@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { History, Settings, HelpCircle, ChevronRight, LogOut, Edit, Bookmark } from 'lucide-react'
+import { History, Settings, HelpCircle, ChevronRight, LogOut, Edit, Bookmark, Eye } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { useSupportStore } from '@/stores/supportStore'
 import { useLikesStore } from '@/stores/likesStore'
@@ -27,6 +27,7 @@ export default function MyPage() {
 
     const totalSupported = supportHistory.reduce((sum, s) => sum + s.amount, 0)
     const bookmarkCount = Object.values(bookmarkedPosts).filter(Boolean).length
+    const isAthlete = user.userType === 'athlete'
 
     const handleLogout = () => {
         logout()
@@ -49,10 +50,16 @@ export default function MyPage() {
                 </div>
                 <h1 className="mypage-name">{user.name}</h1>
                 <p className="mypage-email">{user.email}</p>
-                <div style={{ marginTop: '12px' }}>
+                <div style={{ marginTop: '12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <span className="badge badge-primary">
-                        {user.userType === 'athlete' ? '🏃 選手' : '👋 ファン'}
+                        {isAthlete ? '🏃 選手' : '👋 ファン'}
                     </span>
+                    {isAthlete && (
+                        <Link to={`/athlete/${user.id}`} className="btn btn-sm btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <Eye size={14} />
+                            プロフィールを見る
+                        </Link>
+                    )}
                 </div>
             </div>
 
