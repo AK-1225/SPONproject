@@ -90,9 +90,6 @@ export const useAuthStore = create<AuthState>()(
                             .eq('id', data.user.id)
                             .single()
 
-                        console.log("取得しようとしているID:", data.user.id);
-                        console.log("実際に取得できたプロフィール:", profile);
-
                         if (profile) {
                             const user: User = {
                                 id: profile.id,
