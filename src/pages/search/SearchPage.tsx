@@ -43,7 +43,8 @@ export default function SearchPage() {
                 const matchesName = athlete.name.toLowerCase().includes(query)
                 const matchesSport = athlete.sport.toLowerCase().includes(query)
                 const matchesTags = athlete.tags.some(t => t.toLowerCase().includes(query))
-                if (!matchesName && !matchesSport && !matchesTags) return false
+                const matchesHandle = athlete.userHandle?.toLowerCase().includes(query)
+                if (!matchesName && !matchesSport && !matchesTags && !matchesHandle) return false
             }
 
             // Sport filter

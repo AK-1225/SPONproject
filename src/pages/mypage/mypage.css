@@ -543,3 +543,145 @@
     font-weight: 600;
     color: var(--color-primary-600);
 }
+
+/* User Handle Input */
+.handle-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.handle-prefix {
+    padding: 10px 0 10px 12px;
+    background: var(--color-gray-100);
+    border: 1px solid var(--color-gray-300);
+    border-right: none;
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+    color: var(--color-gray-500);
+    font-weight: 500;
+}
+
+.handle-input-wrapper input {
+    border-radius: 0 var(--radius-md) var(--radius-md) 0 !important;
+    flex: 1;
+}
+
+.input-hint {
+    font-size: var(--font-size-xs);
+    color: var(--color-gray-500);
+    margin-top: var(--space-1);
+}
+
+/* Career Edit Section */
+.career-section {
+    margin-top: var(--space-4);
+}
+
+.career-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+}
+
+.career-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    background: var(--color-gray-50);
+    border-radius: var(--radius-md);
+}
+
+.career-item-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    background: var(--color-primary-100);
+    color: var(--color-primary-600);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.career-item-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.career-item-date {
+    font-size: var(--font-size-xs);
+    color: var(--color-gray-500);
+}
+
+.career-item-title {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-gray-900);
+}
+
+.career-delete-btn {
+    padding: var(--space-1);
+    background: none;
+    border: none;
+    color: var(--color-gray-400);
+    cursor: pointer;
+    transition: color var(--transition-fast);
+}
+
+.career-delete-btn:hover {
+    color: var(--color-error);
+}
+
+.career-add-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    width: 100%;
+    padding: var(--space-3);
+    background: var(--color-gray-50);
+    border: 2px dashed var(--color-gray-300);
+    border-radius: var(--radius-md);
+    color: var(--color-gray-500);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.career-add-btn:hover {
+    border-color: var(--color-primary-300);
+    color: var(--color-primary-500);
+    background: var(--color-primary-50);
+}
+
+.career-add-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--color-gray-50);
+    border-radius: var(--radius-md);
+}
+
+.career-form-row {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.career-form-row select,
+.career-form-row input {
+    flex: 1;
+}
+
+.career-form-actions {
+    display: flex;
+    gap: var(--space-2);
+    justify-content: flex-end;
+}
+
+.career-form-actions .btn {
+    padding: var(--space-2) var(--space-4);
+}

@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Camera, X, Image } from 'lucide-react'
+import { ArrowLeft, Camera, X, Image, Plus, GraduationCap, Trophy, Award, CircleDot, Trash2 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { sportsList, regionsList } from '@/data/mockData'
+import type { CareerEntry, CareerEntryType } from '@/types'
 import './mypage.css'
 
 export default function ProfileEditPage() {
@@ -13,6 +14,7 @@ export default function ProfileEditPage() {
 
     const [name, setName] = useState(user?.name || '')
     const [bio, setBio] = useState(user?.bio || '')
+    const [userHandle, setUserHandle] = useState(user?.userHandle || '')
     const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatarUrl || null)
     const [bannerPreview, setBannerPreview] = useState<string | null>(user?.bannerUrl || null)
     const [birthday, setBirthday] = useState('')
@@ -27,6 +29,14 @@ export default function ProfileEditPage() {
     const [defaultVisibility, setDefaultVisibility] = useState<'public' | 'followers' | 'supporters'>(
         (user?.defaultVisibility as any) || 'public'
     )
+
+    // Career history
+    const [careerHistory, setCareerHistory] = useState<CareerEntry[]>(user?.careerHistory || [])
+    const [showCareerForm, setShowCareerForm] = useState(false)
+    const [newCareerType, setNewCareerType] = useState<CareerEntryType>('education')
+    const [newCareerDate, setNewCareerDate] = useState('')
+    const [newCareerTitle, setNewCareerTitle] = useState('')
+    const [newCareerDescription, setNewCareerDescription] = useState('')
 
     const isAthlete = user?.userType === 'athlete'
 
@@ -72,6 +82,42 @@ export default function ProfileEditPage() {
         )
     }
 
+    const addCareerEntry = () => {
+        if (!newCareerDate || !newCareerTitle) return
+
+        const newEntry: CareerEntry = {
+            id: `career-${Date.now()}`,
+            type: newCareerType,
+            date: newCareerDate,
+            title: newCareerTitle,
+            description: newCareerDescription || undefined,
+        }
+
+        setCareerHistory(prev => [...prev, newEntry])
+        setNewCareerType('education')
+        setNewCareerDate('')
+        setNewCareerTitle('')
+        setNewCareerDescription('')
+        setShowCareerForm(false)
+    }
+
+    const removeCareerEntry = (id: string) => {
+        setCareerHistory(prev => prev.filter(entry => entry.id !== id))
+    }
+
+    const getCareerIcon = (type: CareerEntryType) => {
+        switch (type) {
+            case 'education':
+                return <GraduationCap size={16} />
+            case 'competition':
+                return <Trophy size={16} />
+            case 'award':
+                return <Award size={16} />
+            default:
+                return <CircleDot size={16} />
+        }
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
@@ -80,8 +126,10 @@ export default function ProfileEditPage() {
             await updateProfile({
                 name,
                 bio,
+                userHandle,
                 avatarUrl: avatarPreview || undefined,
                 bannerUrl: bannerPreview || undefined,
+                careerHistory: isAthlete ? careerHistory : undefined,
                 ...(isAthlete && {
                     sport,
                     team,
@@ -180,6 +228,23 @@ export default function ProfileEditPage() {
                         placeholder="名前を入力"
                         required
                     />
+                </div>
+
+                {/* User Handle (ID) */}
+                <div className="form-group">
+                    <label htmlFor="userHandle">ユーザーID</label>
+                    <div className="handle-input-wrapper">
+                        <span className="handle-prefix">@</span>
+                        <input
+                            id="userHandle"
+                            type="text"
+                            value={userHandle.replace('@', '')}
+                            onChange={(e) => setUserHandle('@' + e.target.value.replace('@', '').replace(/[^a-zA-Z0-9_]/g, '').toLowerCase())}
+                            placeholder="username"
+                            maxLength={20}
+                        />
+                    </div>
+                    <span className="input-hint">半角英数字とアンダースコアのみ使用できます</span>
                 </div>
 
                 {/* Bio */}
@@ -318,6 +383,100 @@ export default function ProfileEditPage() {
                             <p className="selected-sports">
                                 選択中: {favoriteSports.join(', ')}
                             </p>
+                        )}
+                    </div>
+                )}
+
+                {/* Career History (Athletes only) */}
+                {isAthlete && (
+                    <div className="form-group career-section">
+                        <label>経歴</label>
+
+                        {/* Existing career entries */}
+                        {careerHistory.length > 0 && (
+                            <div className="career-list">
+                                {careerHistory
+                                    .sort((a, b) => b.date.localeCompare(a.date))
+                                    .map(entry => (
+                                        <div key={entry.id} className="career-item">
+                                            <div className="career-item-icon">
+                                                {getCareerIcon(entry.type)}
+                                            </div>
+                                            <div className="career-item-content">
+                                                <span className="career-item-date">{entry.date.replace('-', '年')}月</span>
+                                                <span className="career-item-title">{entry.title}</span>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                className="career-delete-btn"
+                                                onClick={() => removeCareerEntry(entry.id)}
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                        )}
+
+                        {/* Add new career entry form */}
+                        {showCareerForm ? (
+                            <div className="career-add-form">
+                                <div className="career-form-row">
+                                    <select
+                                        value={newCareerType}
+                                        onChange={(e) => setNewCareerType(e.target.value as CareerEntryType)}
+                                    >
+                                        <option value="education">🎓 学歴</option>
+                                        <option value="competition">🏆 大会</option>
+                                        <option value="award">🏅 受賞</option>
+                                        <option value="other">📌 その他</option>
+                                    </select>
+                                    <input
+                                        type="month"
+                                        value={newCareerDate}
+                                        onChange={(e) => setNewCareerDate(e.target.value)}
+                                        placeholder="年月"
+                                    />
+                                </div>
+                                <input
+                                    type="text"
+                                    value={newCareerTitle}
+                                    onChange={(e) => setNewCareerTitle(e.target.value)}
+                                    placeholder="タイトル（例: ○○高校入学）"
+                                />
+                                <input
+                                    type="text"
+                                    value={newCareerDescription}
+                                    onChange={(e) => setNewCareerDescription(e.target.value)}
+                                    placeholder="説明（任意）"
+                                />
+                                <div className="career-form-actions">
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline"
+                                        onClick={() => setShowCareerForm(false)}
+                                    >
+                                        キャンセル
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary"
+                                        onClick={addCareerEntry}
+                                    >
+                                        追加
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <button
+                                type="button"
+                                className="career-add-btn"
+                                onClick={() => setShowCareerForm(true)}
+                            >
+                                <Plus size={16} />
+                                経歴を追加
+                            </button>
                         )}
                     </div>
                 )}
