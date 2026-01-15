@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { Mail, CheckCircle } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import type { UserType } from '@/types'
 import './auth.css'
@@ -11,8 +12,8 @@ export default function RegisterPage() {
     const [userType, setUserType] = useState<UserType>('fan')
     const [error, setError] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(false)
+    const [showEmailConfirmation, setShowEmailConfirmation] = useState(false)
     const register = useAuthStore(state => state.register)
-    const navigate = useNavigate()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -22,11 +23,42 @@ export default function RegisterPage() {
         const result = await register(email, password, name, userType)
 
         if (result.success) {
-            navigate('/')
+            // Show email confirmation message instead of navigating immediately
+            setShowEmailConfirmation(true)
         } else {
             setError(result.error || '登録に失敗しました')
         }
         setIsLoading(false)
+    }
+
+    // Email confirmation success screen
+    if (showEmailConfirmation) {
+        return (
+            <div className="login-page">
+                <div className="login-card">
+                    <div className="email-confirmation">
+                        <div className="confirmation-icon">
+                            <Mail size={48} />
+                        </div>
+                        <h2>確認メールを送信しました</h2>
+                        <p className="confirmation-email">{email}</p>
+                        <p className="confirmation-message">
+                            ご登録のメールアドレスに確認メールを送信しました。
+                            メール内のリンクをクリックして、アカウントを有効化してください。
+                        </p>
+                        <div className="confirmation-tips">
+                            <div className="tip">
+                                <CheckCircle size={16} />
+                                <span>メールが届かない場合は迷惑メールフォルダをご確認ください</span>
+                            </div>
+                        </div>
+                        <Link to="/login" className="btn btn-primary" style={{ marginTop: '24px' }}>
+                            ログインページへ
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        )
     }
 
     return (

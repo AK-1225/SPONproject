@@ -171,7 +171,20 @@ export const useAuthStore = create<AuthState>()(
                         .eq('id', user.id)
 
                     if (!error) {
-                        set({ user: { ...user, ...updates } })
+                        const updatedUser = { ...user, ...updates }
+                        set({ user: updatedUser })
+
+                        // Sync to athleteStore for athletes
+                        if (user.userType === 'athlete') {
+                            useAthleteStore.getState().updateAthleteProfile(user.id, {
+                                name: updates.name,
+                                avatarUrl: updates.avatarUrl,
+                                bio: updates.bio,
+                                sport: updates.sport,
+                                region: updates.region,
+                                team: updates.team,
+                            })
+                        }
                     }
                 } catch (error) {
                     console.error('Profile update error:', error)
