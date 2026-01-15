@@ -176,6 +176,23 @@ export const useAuthStore = create<AuthState>()(
                 const { user } = get()
                 if (!user) return
 
+                // Update local state immediately (don't wait for Supabase)
+                const updatedUser = { ...user, ...updates }
+                set({ user: updatedUser })
+
+                // Sync to athleteStore for athletes
+                if (user.userType === 'athlete') {
+                    useAthleteStore.getState().updateAthleteProfile(user.id, {
+                        name: updates.name,
+                        avatarUrl: updates.avatarUrl,
+                        bio: updates.bio,
+                        sport: updates.sport,
+                        region: updates.region,
+                        team: updates.team,
+                    })
+                }
+
+                // Try to sync to Supabase in background (non-blocking)
                 try {
                     const { error } = await supabase
                         .from('profiles')
@@ -187,24 +204,11 @@ export const useAuthStore = create<AuthState>()(
                         })
                         .eq('id', user.id)
 
-                    if (!error) {
-                        const updatedUser = { ...user, ...updates }
-                        set({ user: updatedUser })
-
-                        // Sync to athleteStore for athletes
-                        if (user.userType === 'athlete') {
-                            useAthleteStore.getState().updateAthleteProfile(user.id, {
-                                name: updates.name,
-                                avatarUrl: updates.avatarUrl,
-                                bio: updates.bio,
-                                sport: updates.sport,
-                                region: updates.region,
-                                team: updates.team,
-                            })
-                        }
+                    if (error) {
+                        console.warn('Supabase profile update failed (local save succeeded):', error.message)
                     }
                 } catch (error) {
-                    console.error('Profile update error:', error)
+                    console.warn('Supabase connection error (local save succeeded):', error)
                 }
             },
 
