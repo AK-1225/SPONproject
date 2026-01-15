@@ -70,48 +70,69 @@ export const useAuthStore = create<AuthState>()(
 
             login: async (email: string, password: string) => {
                 set({ isLoading: true })
+                console.log('[LOGIN] Starting login...')
 
-                try {
-                    const { data, error } = await supabase.auth.signInWithPassword({
-                        email,
-                        password,
-                    })
+                return new Promise((resolve) => {
+                    console.log('[LOGIN] Calling signInWithPassword...')
 
-                    if (error) {
+                    // Add timeout
+                    const timeout = setTimeout(() => {
+                        console.error('[LOGIN] TIMEOUT - signInWithPassword took too long')
                         set({ isLoading: false })
-                        return { success: false, error: error.message }
-                    }
+                        resolve({ success: false, error: '認証がタイムアウトしました' })
+                    }, 10000)
 
-                    if (data.user) {
-                        // Fetch profile from database
-                        const { data: profile } = await supabase
-                            .from('profiles')
-                            .select('*')
-                            .eq('id', data.user.id)
-                            .single()
+                    supabase.auth.signInWithPassword({ email, password })
+                        .then(async (authResult) => {
+                            clearTimeout(timeout)
+                            console.log('[LOGIN] signInWithPassword RETURNED:', authResult)
 
-                        if (profile) {
-                            const user: User = {
-                                id: profile.id,
-                                email: profile.email,
-                                name: profile.name,
-                                userType: profile.user_type,
-                                userHandle: profile.user_handle || generateUserHandle(),
-                                avatarUrl: profile.avatar_url,
-                                bio: profile.bio,
-                                createdAt: profile.created_at,
+                            const { data, error } = authResult
+
+                            if (error) {
+                                set({ isLoading: false })
+                                resolve({ success: false, error: error.message })
+                                return
                             }
-                            set({ user, isAuthenticated: true, isLoading: false })
-                            return { success: true }
-                        }
-                    }
 
-                    set({ isLoading: false })
-                    return { success: false, error: 'プロフィールの取得に失敗しました' }
-                } catch (error) {
-                    set({ isLoading: false })
-                    return { success: false, error: 'ログインに失敗しました' }
-                }
+                            if (data.user) {
+                                console.log('[LOGIN] User authenticated, fetching profile...')
+                                const { data: profile, error: profileError } = await supabase
+                                    .from('profiles')
+                                    .select('*')
+                                    .eq('id', data.user.id)
+                                    .single()
+
+                                console.log('[LOGIN] Profile fetch result:', { profile: !!profile, error: profileError?.message })
+
+                                if (profile) {
+                                    const user: User = {
+                                        id: profile.id,
+                                        email: profile.email,
+                                        name: profile.name,
+                                        userType: profile.user_type,
+                                        userHandle: profile.user_handle || generateUserHandle(),
+                                        avatarUrl: profile.avatar_url,
+                                        bio: profile.bio,
+                                        createdAt: profile.created_at,
+                                    }
+                                    set({ user, isAuthenticated: true, isLoading: false })
+                                    console.log('[LOGIN] Success!')
+                                    resolve({ success: true })
+                                    return
+                                }
+                            }
+
+                            set({ isLoading: false })
+                            resolve({ success: false, error: 'プロフィールの取得に失敗しました' })
+                        })
+                        .catch((error) => {
+                            clearTimeout(timeout)
+                            console.error('[LOGIN] Exception:', error)
+                            set({ isLoading: false })
+                            resolve({ success: false, error: 'ログインに失敗しました' })
+                        })
+                })
             },
 
             register: async (email: string, password: string, name: string, userType: UserType) => {
@@ -255,31 +276,3 @@ export const useAuthStore = create<AuthState>()(
         }
     )
 )
-
-// Listen to auth state changes
-supabase.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_OUT') {
-        useAuthStore.setState({ user: null, isAuthenticated: false })
-    } else if (event === 'SIGNED_IN' && session?.user) {
-        // Refresh profile data
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-
-        if (profile) {
-            const user: User = {
-                id: profile.id,
-                email: profile.email,
-                name: profile.name,
-                userType: profile.user_type,
-                userHandle: profile.user_handle || `@${profile.id.slice(0, 8)}`,
-                avatarUrl: profile.avatar_url,
-                bio: profile.bio,
-                createdAt: profile.created_at,
-            }
-            useAuthStore.setState({ user, isAuthenticated: true })
-        }
-    }
-})
