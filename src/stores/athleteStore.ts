@@ -27,6 +27,8 @@ interface AthleteState {
     getPostsForAthlete: (athleteId: string) => Post[]
     getStoriesForAthlete: (athleteId: string) => Story[]
     addPost: (input: NewPostInput) => void
+    registerAthlete: (user: { id: string; name: string; email: string; avatarUrl?: string; bio?: string }) => void
+    updateAthleteProfile: (athleteId: string, updates: Partial<Athlete>) => void
 }
 
 export const useAthleteStore = create<AthleteState>()(
@@ -117,6 +119,42 @@ export const useAthleteStore = create<AthleteState>()(
                                 : a
                         )
                         : state.athletes
+                }))
+            },
+
+            // Register a new athlete (called when athlete type user registers)
+            registerAthlete: (user) => {
+                const existing = get().athletes.find(a => a.id === user.id || a.email === user.email)
+                if (existing) return // Already registered
+
+                const newAthlete: Athlete = {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    userType: 'athlete',
+                    avatarUrl: user.avatarUrl || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+                    bio: user.bio || '',
+                    createdAt: new Date().toISOString(),
+                    sport: '未設定',
+                    region: '未設定',
+                    tags: [],
+                    followerCount: 0,
+                    supporterCount: 0,
+                    totalSupport: 0,
+                    bestShots: [],
+                }
+
+                set(state => ({
+                    athletes: [...state.athletes, newAthlete]
+                }))
+            },
+
+            // Update athlete profile information
+            updateAthleteProfile: (athleteId, updates) => {
+                set(state => ({
+                    athletes: state.athletes.map(a =>
+                        a.id === athleteId ? { ...a, ...updates } : a
+                    )
                 }))
             },
         }),

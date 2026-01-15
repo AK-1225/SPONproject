@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { supabase } from '@/lib/supabase'
 import type { User, UserType } from '@/types'
+import { useAthleteStore } from '@/stores/athleteStore'
 
 interface AuthState {
     user: User | null
@@ -128,6 +129,16 @@ export const useAuthStore = create<AuthState>()(
                             createdAt: new Date().toISOString(),
                         }
                         set({ user, isAuthenticated: true, isLoading: false })
+
+                        // If registering as athlete, sync with athleteStore
+                        if (userType === 'athlete') {
+                            useAthleteStore.getState().registerAthlete({
+                                id: data.user.id,
+                                email,
+                                name,
+                            })
+                        }
+
                         return { success: true }
                     }
 

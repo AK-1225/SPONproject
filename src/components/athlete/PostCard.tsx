@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Heart, Bookmark, MessageCircle } from 'lucide-react'
 import { useLikesStore } from '@/stores/likesStore'
 import { useCommentStore } from '@/stores/commentStore'
+import { useAuthStore } from '@/stores/authStore'
 import type { Post, Athlete } from '@/types'
 import { formatDistanceToNow, formatCurrency } from '@/utils/formatDate'
 import SupportButton from '@/components/support/SupportButton'
@@ -17,12 +18,18 @@ interface PostCardProps {
 export default function PostCard({ post, athlete }: PostCardProps) {
     const { isLiked, isBookmarked, toggleLike, toggleBookmark } = useLikesStore()
     const { getCommentsForPost } = useCommentStore()
+    const { user } = useAuthStore()
     const [likeCount, setLikeCount] = useState(post.likeCount)
     const [showComments, setShowComments] = useState(false)
 
     const liked = isLiked(post.id)
     const bookmarked = isBookmarked(post.id)
     const comments = getCommentsForPost(post.id)
+
+    // Fallback: if athlete is not found but post belongs to current user, use user data
+    const isOwnPost = user?.id === post.athleteId
+    const authorName = athlete?.name || (isOwnPost ? user?.name : '選手')
+    const authorAvatar = athlete?.avatarUrl || (isOwnPost ? user?.avatarUrl : undefined)
 
     const handleLike = () => {
         toggleLike(post.id)
@@ -40,12 +47,13 @@ export default function PostCard({ post, athlete }: PostCardProps) {
             {/* Post Header */}
             <Link to={`/athlete/${post.athleteId}`} className="post-header">
                 <img
-                    src={athlete?.avatarUrl || '/default-avatar.png'}
-                    alt={athlete?.name || ''}
+                    src={authorAvatar || '/default-avatar.png'}
+                    alt={authorName || ''}
                     className="avatar avatar-sm"
+                    loading="lazy"
                 />
                 <div className="post-header-info">
-                    <span className="post-author">{athlete?.name || '選手'}</span>
+                    <span className="post-author">{authorName}</span>
                     <span className="post-time">{formatDistanceToNow(post.createdAt)}</span>
                 </div>
             </Link>

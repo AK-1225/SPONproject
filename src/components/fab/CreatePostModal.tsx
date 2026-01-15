@@ -1,7 +1,15 @@
-import { useState } from 'react'
-import { X, Camera, Image, Send } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { X, Camera, Image, Send, Video, Loader } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { useAthleteStore } from '@/stores/athleteStore'
+import {
+    compressImage,
+    validateVideo,
+    generateVideoThumbnail,
+    isVideoFile,
+    isImageFile,
+    MAX_VIDEO_DURATION
+} from '@/utils/mediaUtils'
 import './fab.css'
 
 interface CreatePostModalProps {
@@ -15,21 +23,64 @@ export default function CreatePostModal({ onClose }: CreatePostModalProps) {
     const [caption, setCaption] = useState('')
     const [tags, setTags] = useState('')
     const [isBestShot, setIsBestShot] = useState(false)
-    const [imagePreview, setImagePreview] = useState<string | null>(null)
+    const [mediaPreview, setMediaPreview] = useState<string | null>(null)
+    const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null)
+    const [videoFile, setVideoFile] = useState<File | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isProcessing, setIsProcessing] = useState(false)
     const [success, setSuccess] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const [videoDuration, setVideoDuration] = useState<number | null>(null)
+
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     // Get current athlete data
     const athlete = athletes.find(a => a.id === user?.id || a.email === user?.email)
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleMediaChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
-        if (file) {
-            const reader = new FileReader()
-            reader.onload = (event) => {
-                setImagePreview(event.target?.result as string)
+        if (!file) return
+
+        setError(null)
+        setIsProcessing(true)
+
+        try {
+            if (isImageFile(file)) {
+                // Compress image before preview
+                const compressed = await compressImage(file)
+                setMediaPreview(compressed)
+                setMediaType('image')
+                setVideoFile(null)
+                setVideoDuration(null)
+            } else if (isVideoFile(file)) {
+                // Validate video
+                const validation = await validateVideo(file)
+
+                if (!validation.valid && validation.error && !validation.error.includes('最初の1分')) {
+                    setError(validation.error)
+                    setIsProcessing(false)
+                    return
+                }
+
+                // If video is too long, show warning but allow (will be trimmed)
+                if (validation.duration > MAX_VIDEO_DURATION) {
+                    setError(`動画は${MAX_VIDEO_DURATION}秒を超えています。最初の1分のみが使用されます。`)
+                }
+
+                // Generate thumbnail for preview
+                const thumbnail = await generateVideoThumbnail(file)
+                setMediaPreview(thumbnail)
+                setMediaType('video')
+                setVideoFile(file)
+                setVideoDuration(validation.duration)
+            } else {
+                setError('対応していないファイル形式です')
             }
-            reader.readAsDataURL(file)
+        } catch (err) {
+            setError('ファイルの処理中にエラーが発生しました')
+            console.error(err)
+        } finally {
+            setIsProcessing(false)
         }
     }
 
@@ -38,6 +89,7 @@ export default function CreatePostModal({ onClose }: CreatePostModalProps) {
         if (!caption.trim() || !user) return
 
         setIsSubmitting(true)
+        setError(null)
 
         try {
             // Parse tags from comma-separated string
@@ -48,7 +100,7 @@ export default function CreatePostModal({ onClose }: CreatePostModalProps) {
                 athleteId: athlete?.id || user.id,
                 caption: caption.trim(),
                 tags: tagList,
-                imageUrl: imagePreview || undefined,
+                imageUrl: mediaPreview || undefined,
                 isBestShot,
             })
 
@@ -57,9 +109,21 @@ export default function CreatePostModal({ onClose }: CreatePostModalProps) {
                 onClose()
             }, 1500)
         } catch (error) {
+            setError('投稿に失敗しました')
             console.error(error)
         } finally {
             setIsSubmitting(false)
+        }
+    }
+
+    const removeMedia = () => {
+        setMediaPreview(null)
+        setMediaType(null)
+        setVideoFile(null)
+        setVideoDuration(null)
+        setError(null)
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ''
         }
     }
 
@@ -87,22 +151,33 @@ export default function CreatePostModal({ onClose }: CreatePostModalProps) {
                     <button
                         className="submit-btn"
                         onClick={handleSubmit}
-                        disabled={!caption.trim() || isSubmitting}
+                        disabled={!caption.trim() || isSubmitting || isProcessing}
                     >
-                        <Send size={20} />
+                        {isSubmitting ? <Loader size={20} className="spin" /> : <Send size={20} />}
                     </button>
                 </div>
 
                 <form className="post-form" onSubmit={handleSubmit}>
-                    {/* Image Upload */}
+                    {/* Media Upload */}
                     <div className="image-upload">
-                        {imagePreview ? (
+                        {isProcessing ? (
+                            <div className="upload-processing">
+                                <Loader size={32} className="spin" />
+                                <span>処理中...</span>
+                            </div>
+                        ) : mediaPreview ? (
                             <div className="image-preview">
-                                <img src={imagePreview} alt="" />
+                                <img src={mediaPreview} alt="" />
+                                {mediaType === 'video' && (
+                                    <div className="video-badge">
+                                        <Video size={16} />
+                                        <span>{videoDuration ? `${Math.round(videoDuration)}秒` : '動画'}</span>
+                                    </div>
+                                )}
                                 <button
                                     type="button"
                                     className="remove-image"
-                                    onClick={() => setImagePreview(null)}
+                                    onClick={removeMedia}
                                 >
                                     <X size={16} />
                                 </button>
@@ -110,16 +185,28 @@ export default function CreatePostModal({ onClose }: CreatePostModalProps) {
                         ) : (
                             <label className="upload-placeholder">
                                 <input
+                                    ref={fileInputRef}
                                     type="file"
-                                    accept="image/*"
-                                    onChange={handleImageChange}
+                                    accept="image/*,video/*"
+                                    onChange={handleMediaChange}
                                     style={{ display: 'none' }}
                                 />
-                                <Camera size={32} />
-                                <span>写真を選択</span>
+                                <div className="upload-icons">
+                                    <Camera size={28} />
+                                    <Video size={28} />
+                                </div>
+                                <span>写真・動画を選択</span>
+                                <span className="upload-hint">動画は{MAX_VIDEO_DURATION}秒まで</span>
                             </label>
                         )}
                     </div>
+
+                    {/* Error Message */}
+                    {error && (
+                        <div className="error-message">
+                            {error}
+                        </div>
+                    )}
 
                     {/* Caption */}
                     <div className="form-group">
@@ -143,18 +230,20 @@ export default function CreatePostModal({ onClose }: CreatePostModalProps) {
                         />
                     </div>
 
-                    {/* Best Shot Toggle */}
-                    <label className="best-shot-toggle">
-                        <input
-                            type="checkbox"
-                            checked={isBestShot}
-                            onChange={(e) => setIsBestShot(e.target.checked)}
-                        />
-                        <span className="toggle-label">
-                            <Image size={16} />
-                            ベストショットに追加
-                        </span>
-                    </label>
+                    {/* Best Shot Toggle (only for images) */}
+                    {mediaType !== 'video' && (
+                        <label className="best-shot-toggle">
+                            <input
+                                type="checkbox"
+                                checked={isBestShot}
+                                onChange={(e) => setIsBestShot(e.target.checked)}
+                            />
+                            <span className="toggle-label">
+                                <Image size={16} />
+                                ベストショットに追加
+                            </span>
+                        </label>
+                    )}
                 </form>
             </div>
         </div>
