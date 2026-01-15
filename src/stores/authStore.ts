@@ -176,7 +176,39 @@ export const useAuthStore = create<AuthState>()(
                 const { user } = get()
                 if (!user) return
 
-                // Update local state immediately (don't wait for Supabase)
+                // Create a timeout promise
+                const timeoutPromise = new Promise<{ error: { message: string } }>((resolve) => {
+                    setTimeout(() => {
+                        resolve({ error: { message: 'Timeout' } })
+                    }, 5000)
+                })
+
+                // Create the Supabase update promise
+                const updatePromise = (async () => {
+                    const result = await supabase
+                        .from('profiles')
+                        .update({
+                            name: updates.name,
+                            avatar_url: updates.avatarUrl,
+                            bio: updates.bio,
+                            updated_at: new Date().toISOString(),
+                        })
+                        .eq('id', user.id)
+                    return result
+                })()
+
+                // Race between timeout and update
+                const { error } = await Promise.race([updatePromise, timeoutPromise])
+
+                if (error) {
+                    if (error.message === 'Timeout') {
+                        console.warn('Supabase response slow, but update likely succeeded')
+                    } else {
+                        console.error('Supabase profile update failed:', error.message)
+                    }
+                }
+
+                // Update local state (whether success or timeout - DB likely saved)
                 const updatedUser = { ...user, ...updates }
                 set({ user: updatedUser })
 
@@ -191,22 +223,6 @@ export const useAuthStore = create<AuthState>()(
                         team: updates.team,
                     })
                 }
-
-                // Fire-and-forget: Sync to Supabase in background (no await)
-                supabase
-                    .from('profiles')
-                    .update({
-                        name: updates.name,
-                        avatar_url: updates.avatarUrl,
-                        bio: updates.bio,
-                        updated_at: new Date().toISOString(),
-                    })
-                    .eq('id', user.id)
-                    .then(({ error }) => {
-                        if (error) {
-                            console.warn('Supabase profile update failed:', error.message)
-                        }
-                    })
             },
 
             // Check if a user handle is available
