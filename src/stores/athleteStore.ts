@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Post, Story, Photo, Athlete } from '@/types'
 import { mockAthletes, mockPosts, mockStories } from '@/data/mockData'
+import { useAuthStore } from '@/stores/authStore'
 
 interface NewPostInput {
     athleteId: string
@@ -71,7 +72,35 @@ export const useAthleteStore = create<AthleteState>()(
 
             getAthlete: (athleteId: string) => {
                 // Search by ID first, then by email for new accounts
-                return get().athletes.find(a => a.id === athleteId || a.email === athleteId)
+                const fromStore = get().athletes.find(a => a.id === athleteId || a.email === athleteId)
+                if (fromStore) return fromStore
+
+                // Fallback: Check authStore for newly registered athletes
+                const { user } = useAuthStore.getState()
+                if (user && user.userType === 'athlete' && (user.id === athleteId || user.email === athleteId)) {
+                    // Convert user to athlete format
+                    return {
+                        id: user.id,
+                        email: user.email,
+                        name: user.name,
+                        userType: 'athlete' as const,
+                        userHandle: user.userHandle,
+                        avatarUrl: user.avatarUrl || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+                        bio: user.bio || '',
+                        createdAt: user.createdAt,
+                        sport: user.sport || '未設定',
+                        region: user.region || '未設定',
+                        team: user.team,
+                        tags: [],
+                        followerCount: 0,
+                        supporterCount: 0,
+                        totalSupport: 0,
+                        bestShots: [],
+                        careerHistory: user.careerHistory,
+                    }
+                }
+
+                return undefined
             },
 
             getPostsForAthlete: (athleteId: string) => {

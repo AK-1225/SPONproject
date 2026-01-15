@@ -88,7 +88,7 @@ export default function CreatePostModal({ onClose }: CreatePostModalProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!caption.trim() || !user) return
+        if (!user || !mediaPreview) return
 
         setIsSubmitting(true)
         setError(null)
