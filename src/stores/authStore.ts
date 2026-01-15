@@ -4,6 +4,16 @@ import { supabase } from '@/lib/supabase'
 import type { User, UserType } from '@/types'
 import { useAthleteStore } from '@/stores/athleteStore'
 
+// Generate a random user handle
+const generateUserHandle = (): string => {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
+    let result = ''
+    for (let i = 0; i < 8; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    return `@${result}`
+}
+
 interface AuthState {
     user: User | null
     isAuthenticated: boolean
@@ -13,6 +23,8 @@ interface AuthState {
     logout: () => Promise<void>
     updateProfile: (updates: Partial<User>) => Promise<void>
     checkSession: () => Promise<void>
+    checkHandleAvailable: (handle: string) => Promise<boolean>
+    resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -41,6 +53,7 @@ export const useAuthStore = create<AuthState>()(
                                 email: profile.email,
                                 name: profile.name,
                                 userType: profile.user_type,
+                                userHandle: profile.user_handle || generateUserHandle(),
                                 avatarUrl: profile.avatar_url,
                                 bio: profile.bio,
                                 createdAt: profile.created_at,
@@ -83,6 +96,7 @@ export const useAuthStore = create<AuthState>()(
                                 email: profile.email,
                                 name: profile.name,
                                 userType: profile.user_type,
+                                userHandle: profile.user_handle || generateUserHandle(),
                                 avatarUrl: profile.avatar_url,
                                 bio: profile.bio,
                                 createdAt: profile.created_at,
@@ -121,11 +135,13 @@ export const useAuthStore = create<AuthState>()(
                     }
 
                     if (data.user) {
+                        const userHandle = generateUserHandle()
                         const user: User = {
                             id: data.user.id,
                             email,
                             name,
                             userType,
+                            userHandle,
                             createdAt: new Date().toISOString(),
                         }
                         set({ user, isAuthenticated: true, isLoading: false })
@@ -136,6 +152,7 @@ export const useAuthStore = create<AuthState>()(
                                 id: data.user.id,
                                 email,
                                 name,
+                                userHandle,
                             })
                         }
 
@@ -190,6 +207,30 @@ export const useAuthStore = create<AuthState>()(
                     console.error('Profile update error:', error)
                 }
             },
+
+            // Check if a user handle is available
+            checkHandleAvailable: async (_handle: string): Promise<boolean> => {
+                // In production, check against database
+                // For now, always return true (mock)
+                return true
+            },
+
+            // Send password reset email
+            resetPassword: async (email: string): Promise<{ success: boolean; error?: string }> => {
+                try {
+                    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                        redirectTo: `${window.location.origin}/reset-password`,
+                    })
+
+                    if (error) {
+                        return { success: false, error: error.message }
+                    }
+
+                    return { success: true }
+                } catch (error) {
+                    return { success: false, error: 'パスワードリセットメールの送信に失敗しました' }
+                }
+            },
         }),
         {
             name: 'spon-auth',
@@ -216,6 +257,7 @@ supabase.auth.onAuthStateChange(async (event, session) => {
                 email: profile.email,
                 name: profile.name,
                 userType: profile.user_type,
+                userHandle: profile.user_handle || `@${profile.id.slice(0, 8)}`,
                 avatarUrl: profile.avatar_url,
                 bio: profile.bio,
                 createdAt: profile.created_at,

@@ -49,8 +49,11 @@ export default function MyPage() {
                     )}
                 </div>
                 <h1 className="mypage-name">{user.name}</h1>
+                {user.userHandle && (
+                    <p className="mypage-handle">{user.userHandle}</p>
+                )}
                 <p className="mypage-email">{user.email}</p>
-                <div style={{ marginTop: '12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
                     <span className="badge badge-primary">
                         {isAthlete ? '🏃 選手' : '👋 ファン'}
                     </span>

@@ -250,3 +250,37 @@
     color: var(--color-primary-500);
     flex-shrink: 0;
 }
+
+/* Forgot Password Link */
+.forgot-password-link {
+    display: block;
+    text-align: center;
+    margin-top: var(--space-3);
+    color: var(--color-primary-500);
+    font-size: var(--font-size-sm);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color var(--transition-fast);
+}
+
+.forgot-password-link:hover {
+    color: var(--color-primary-600);
+    text-decoration: underline;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--color-gray-500);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-4);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.back-link:hover {
+    color: var(--color-gray-700);
+}

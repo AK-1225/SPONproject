@@ -28,7 +28,7 @@ interface AthleteState {
     getStoriesForAthlete: (athleteId: string) => Story[]
     addPost: (input: NewPostInput) => void
     deletePost: (postId: string) => void
-    registerAthlete: (user: { id: string; name: string; email: string; avatarUrl?: string; bio?: string }) => void
+    registerAthlete: (user: { id: string; name: string; email: string; userHandle?: string; avatarUrl?: string; bio?: string }) => void
     updateAthleteProfile: (athleteId: string, updates: Partial<Athlete>) => void
 }
 
@@ -141,6 +141,7 @@ export const useAthleteStore = create<AthleteState>()(
                     email: user.email,
                     name: user.name,
                     userType: 'athlete',
+                    userHandle: user.userHandle || `@${user.id.slice(0, 8)}`,
                     avatarUrl: user.avatarUrl || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
                     bio: user.bio || '',
                     createdAt: new Date().toISOString(),

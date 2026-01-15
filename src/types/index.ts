@@ -3,11 +3,23 @@ export type UserType = 'fan' | 'athlete';
 
 export type UserTier = 'general' | 'follower' | 'supporter';
 
+// Career entry type for athlete history
+export type CareerEntryType = 'education' | 'competition' | 'award' | 'other';
+
+export interface CareerEntry {
+    id: string;
+    type: CareerEntryType;
+    date: string; // YYYY-MM format
+    title: string;
+    description?: string;
+}
+
 export interface User {
     id: string;
     email: string;
     name: string;
     userType: UserType;
+    userHandle: string; // Unique @handle like @athlete123
     avatarUrl?: string;
     bio?: string;
     createdAt: string;
@@ -17,6 +29,7 @@ export interface User {
     region?: string;
     team?: string;
     defaultVisibility?: 'public' | 'followers' | 'supporters';
+    careerHistory?: CareerEntry[];
 }
 
 // Athlete-specific types
@@ -30,6 +43,7 @@ export interface Athlete extends User {
     supporterCount: number;
     totalSupport: number;
     bestShots: Photo[];
+    careerHistory?: CareerEntry[];
     socialLinks?: {
         twitter?: string;
         instagram?: string;

@@ -40,6 +40,13 @@
     color: var(--color-gray-500);
 }
 
+.mypage-handle {
+    font-size: var(--font-size-sm);
+    color: var(--color-primary-500);
+    font-weight: 500;
+    margin-bottom: var(--space-1);
+}
+
 .mypage-section {
     margin-bottom: var(--space-6);
 }

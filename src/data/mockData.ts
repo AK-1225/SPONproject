@@ -4,8 +4,8 @@ import type { Athlete, Post, Photo, Story } from '@/types'
 export const sportsList = [
     // メジャースポーツ
     '陸上競技', 'サッカー', '野球', 'バスケットボール', 'バレーボール', 'テニス',
-    // 格闘技
-    '柔道', '空手', 'ボクシング', 'レスリング', '剣道', 'テコンドー', '合気道',
+    // 格闘技・武道
+    '柔道', '空手', 'ボクシング', 'レスリング', '剣道', 'テコンドー', '合気道', '弓道',
     // ラケットスポーツ
     'バドミントン', '卓球', 'スカッシュ',
     // 水泳系
@@ -188,6 +188,7 @@ const generateAthletes = (): Athlete[] => {
             email: `athlete${i + 1}@example.com`,
             name: `${lastName} ${firstName}`,
             userType: 'athlete',
+            userHandle: `@athlete${i + 1}`,
             avatarUrl: avatarUrls[i % avatarUrls.length],
             bio: `${data.sport}選手として活動中。${data.tags[0]}が得意です。応援よろしくお願いします！`,
             createdAt: new Date(Date.now() - randomInt(30, 365) * 24 * 60 * 60 * 1000).toISOString(),

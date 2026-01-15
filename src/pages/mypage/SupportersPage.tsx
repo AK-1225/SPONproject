@@ -18,14 +18,21 @@ export default function SupportersPage() {
     // Get current athlete data
     const currentAthlete = athletes.find(a => a.id === user?.id || a.email === user?.email)
 
-    // Get followers (mock - in real app would query DB)
+    // Check if this is a mock athlete (mock IDs start with 'athlete-')
+    const isMockAthlete = currentAthlete?.id?.startsWith('athlete-')
+
+    // Get followers - only show mock data for mock athletes
     const followers = useMemo(() => {
-        return Array.from({ length: 12 }, (_, i) => ({
+        // For real accounts, show actual follower count but empty list (would come from DB)
+        if (!isMockAthlete) return []
+
+        // For mock athletes, generate dummy followers
+        return Array.from({ length: currentAthlete?.followerCount || 12 }, (_, i) => ({
             id: `fan-${i + 1}`,
             name: `ファン${i + 1}`,
             avatarUrl: `https://i.pravatar.cc/100?img=${i + 10}`,
         }))
-    }, [])
+    }, [isMockAthlete, currentAthlete])
 
     // Get supporters with amounts
     const supporters = useMemo(() => {
