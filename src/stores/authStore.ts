@@ -192,24 +192,21 @@ export const useAuthStore = create<AuthState>()(
                     })
                 }
 
-                // Try to sync to Supabase in background (non-blocking)
-                try {
-                    const { error } = await supabase
-                        .from('profiles')
-                        .update({
-                            name: updates.name,
-                            avatar_url: updates.avatarUrl,
-                            bio: updates.bio,
-                            updated_at: new Date().toISOString(),
-                        })
-                        .eq('id', user.id)
-
-                    if (error) {
-                        console.warn('Supabase profile update failed (local save succeeded):', error.message)
-                    }
-                } catch (error) {
-                    console.warn('Supabase connection error (local save succeeded):', error)
-                }
+                // Fire-and-forget: Sync to Supabase in background (no await)
+                supabase
+                    .from('profiles')
+                    .update({
+                        name: updates.name,
+                        avatar_url: updates.avatarUrl,
+                        bio: updates.bio,
+                        updated_at: new Date().toISOString(),
+                    })
+                    .eq('id', user.id)
+                    .then(({ error }) => {
+                        if (error) {
+                            console.warn('Supabase profile update failed:', error.message)
+                        }
+                    })
             },
 
             // Check if a user handle is available
